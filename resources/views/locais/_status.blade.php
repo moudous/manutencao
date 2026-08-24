@@ -1,0 +1,1 @@
+<span class="badge rounded-pill {{ $local->trashed() ? 'text-bg-dark' : ($local->ativo ? 'text-bg-success' : 'text-bg-secondary') }} status-badge">{{ $local->trashed() ? 'Apagado' : ($local->ativo ? 'Ativo' : 'Inativo') }}</span>

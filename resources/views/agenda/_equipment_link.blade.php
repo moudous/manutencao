@@ -1,0 +1,1 @@
+<a href="{{ route('agenda.lancamentos.index',$agenda) }}" class="link-primary fw-semibold text-decoration-none" title="Abrir lançamentos desta agenda">{{ $agenda->equipamento?->titulo?:'Ativo não informado' }} ({{ $agenda->equipamento?->codigo?:'sem código' }})</a>

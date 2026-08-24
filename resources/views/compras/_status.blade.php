@@ -1,0 +1,1 @@
+<span class="badge rounded-pill {{ $compra->trashed()?'text-bg-dark':($compra->disponivel?'text-bg-success':'text-bg-secondary') }} status-badge">{{ $compra->trashed()?'Apagada':($compra->disponivel?'Disponível':'Indisponível') }}</span>
