@@ -22,13 +22,20 @@ class ManutencaoController extends Controller
     {
         $filtro = in_array($request->query('filtro'), ['hoje', '7dias', '30dias', 'todas'], true)
             ? $request->query('filtro') : 'hoje';
+        $usuarioId = (int) $request->session()->get('gi_context.usuario.id');
         $query = Lancamento::query()
             ->where('agenda_id', '>', 0)
             ->whereNotNull('data_agendamento')
             ->with(['agenda', 'equipamento.local.unidade', 'local.unidade', 'tecnico', 'situacao', 'despesas.compra'])
             ->withSum('despesas as total_despesas', DB::raw('quantidade * custo'))
-            ->orderByRaw('data_arquivamento IS NULL DESC')
-            ->orderBy('data_agendamento');
+            ->orderByRaw(
+                'CASE WHEN data_inicio IS NOT NULL AND data_arquivamento IS NULL AND tecnicos_id = ? THEN 0 '
+                .'WHEN data_inicio IS NOT NULL AND data_arquivamento IS NULL THEN 1 '
+                .'WHEN data_arquivamento IS NULL THEN 2 ELSE 3 END',
+                [$usuarioId],
+            )
+            ->orderByRaw('CASE WHEN data_arquivamento IS NULL THEN data_agendamento END ASC')
+            ->orderByRaw('CASE WHEN data_arquivamento IS NOT NULL THEN data_arquivamento END DESC');
 
         $hoje = today();
         if ($filtro === 'hoje') $query->whereDate('data_agendamento', $hoje);
@@ -42,7 +49,6 @@ class ManutencaoController extends Controller
         $permissoes = app(GiPermissionService::class);
         $podeEditar = $permissoes->permite('manutencao.editar', $request);
         $podeVisualizar = $podeEditar || $permissoes->permite('manutencao.visualizar', $request);
-        $usuarioId = (int) $request->session()->get('gi_context.usuario.id');
         $ativa = Lancamento::query()
             ->where('tecnicos_id', $usuarioId)
             ->whereNotNull('data_inicio')
