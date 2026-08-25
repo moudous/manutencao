@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Compra extends Model
 {
@@ -12,4 +13,10 @@ class Compra extends Model
     protected $table='manut_compras';
     protected $fillable=['titulo','unidade','quantidade','quantidade_unitaria','qtde_utilizada','comprador','preco','data_compra','disponivel'];
     protected function casts(): array { return ['quantidade'=>'float','quantidade_unitaria'=>'float','qtde_utilizada'=>'float','preco'=>'float','data_compra'=>'date','disponivel'=>'boolean','criado_em'=>'datetime','atualizado_em'=>'datetime','apagado_em'=>'datetime']; }
+    public function getPrecoUnitarioAttribute(): ?float
+    {
+        $totalUnidades = (float) $this->quantidade * (float) $this->quantidade_unitaria;
+        return $this->preco !== null && $totalUnidades > 0 ? (float) $this->preco / $totalUnidades : null;
+    }
+    public function despesas(): HasMany { return $this->hasMany(Despesa::class, 'compra_id'); }
 }

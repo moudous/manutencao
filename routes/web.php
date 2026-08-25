@@ -11,6 +11,8 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\AgendaPreventivaController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\LancamentoController;
+use App\Http\Controllers\OrcamentoController;
+use App\Http\Controllers\DespesaController;
 use App\Services\GiPessoaSynchronizer;
 
 Route::get('/auth/gi', function (Request $request) {
@@ -143,6 +145,14 @@ Route::prefix('agenda')->name('agenda.')->middleware('gi.session')->group(functi
     Route::post('/', [AgendaPreventivaController::class, 'store'])->middleware('gi.permission:agenda.criar')->name('store');
     Route::get('/{agenda}/lancamentos', [LancamentoController::class, 'index'])->middleware('gi.permission:agenda.listar')->name('lancamentos.index');
     Route::get('/{agenda}/lancamentos/dados', [LancamentoController::class, 'data'])->middleware('gi.permission:agenda.listar')->name('lancamentos.data');
+    Route::patch('/{agenda}/lancamentos/{lancamento}/etapa-2', [LancamentoController::class, 'updateEtapaDois'])->middleware('gi.permission:agenda.listar')->name('lancamentos.etapa-dois');
+    Route::post('/{agenda}/lancamentos/{lancamento}/concluir', [LancamentoController::class, 'concluir'])->middleware('gi.permission:agenda.listar')->name('lancamentos.concluir');
+    Route::get('/{agenda}/lancamentos/{lancamento}/orcamentos/dados', [OrcamentoController::class, 'data'])->middleware('gi.permission:agenda.listar')->name('lancamentos.orcamentos.data');
+    Route::post('/{agenda}/lancamentos/{lancamento}/orcamentos', [OrcamentoController::class, 'store'])->middleware('gi.permission:agenda.listar')->name('lancamentos.orcamentos.store');
+    Route::delete('/{agenda}/lancamentos/{lancamento}/orcamentos/{orcamento}', [OrcamentoController::class, 'destroy'])->middleware('gi.permission:agenda.listar')->name('lancamentos.orcamentos.destroy');
+    Route::get('/{agenda}/lancamentos/{lancamento}/despesas/dados', [DespesaController::class, 'data'])->middleware('gi.permission:agenda.listar')->name('lancamentos.despesas.data');
+    Route::post('/{agenda}/lancamentos/{lancamento}/despesas', [DespesaController::class, 'store'])->middleware('gi.permission:agenda.listar')->name('lancamentos.despesas.store');
+    Route::delete('/{agenda}/lancamentos/{lancamento}/despesas/{despesa}', [DespesaController::class, 'destroy'])->middleware('gi.permission:agenda.listar')->name('lancamentos.despesas.destroy');
     Route::get('/{agenda}/lancamentos/{lancamento}', [LancamentoController::class, 'show'])->middleware('gi.permission:agenda.visualizar')->name('lancamentos.show');
     Route::get('/{id}', [AgendaPreventivaController::class, 'show'])->middleware('gi.permission:agenda.visualizar')->name('show');
     Route::get('/{id}/edit', [AgendaPreventivaController::class, 'edit'])->middleware('gi.permission:agenda.criar')->name('edit');

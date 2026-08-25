@@ -7,6 +7,7 @@ use App\Models\Ativo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AgendaPreventivaController extends Controller
@@ -33,7 +34,29 @@ class AgendaPreventivaController extends Controller
     public function create(): View { return $this->formView(new AgendaPreventiva(['ativo'=>true]),false); }
     public function store(Request $request): RedirectResponse
     {
-        $data=$this->validated($request); $data['criado_por']=$request->session()->get('gi_context.usuario.id'); AgendaPreventiva::create($data);
+        $data = $this->validated($request);
+        $agora = now();
+        $proximaAgenda = $agora->copy()->addDays(max(0, (int) ($data['periodicidade'] ?? 0)));
+        $proximoOrcamento = $proximaAgenda->copy()->subDays(max(0, (int) ($data['orcamento'] ?? 0)));
+        $data['criado_por'] = $request->session()->get('gi_context.usuario.id');
+        $data['proxima_agenda'] = $proximaAgenda;
+        $data['proximo_orcamento'] = $proximoOrcamento;
+
+        DB::transaction(function () use ($request, $data, $agora, $proximaAgenda, $proximoOrcamento): void {
+            $agenda = AgendaPreventiva::create($data);
+            $agenda->lancamentos()->create([
+                'ativos_id' => $agenda->ativos_id,
+                'locais_id' => $agenda->locais_id,
+                'solicitante' => 'Sistema',
+                'data_lancamento' => $agora,
+                'data_orcamento' => $proximoOrcamento,
+                'data_agendamento' => $proximaAgenda,
+                'data_inicio' => null,
+                'etapa' => 1,
+                'ativo' => true,
+            ]);
+        });
+
         return redirect()->route('agenda.index')->with('status','Agenda preventiva cadastrada com sucesso.');
     }
     public function show(int $id): View { $agenda=AgendaPreventiva::withTrashed()->with(['equipamento.local.unidade','criador'])->findOrFail($id); return view('agenda.show',compact('agenda')); }
@@ -45,7 +68,7 @@ class AgendaPreventivaController extends Controller
 
     private function validated(Request $request): array
     {
-        $data=$request->validate(['ativos_id'=>['required','integer','exists:manut_ativos,id'],'ultima_agenda'=>['nullable','date'],'proxima_agenda'=>['nullable','date'],'proximo_orcamento'=>['nullable','date'],'periodicidade'=>['nullable','integer','min:0'],'orcamento'=>['nullable','integer','min:0'],'ativo'=>['nullable','boolean'],'obs'=>['nullable','string','max:250']]);
+        $data=$request->validate(['ativos_id'=>['required','integer','exists:manut_ativos,id'],'ultima_agenda'=>['required','date'],'proxima_agenda'=>['required','date'],'proximo_orcamento'=>['required','date'],'periodicidade'=>['required','integer','min:0'],'orcamento'=>['required','integer','min:0'],'ativo'=>['nullable','boolean'],'obs'=>['nullable','string','max:250']]);
         $data['locais_id']=Ativo::withTrashed()->findOrFail($data['ativos_id'])->locais_id; return $data;
     }
     private function formView(AgendaPreventiva $agenda,bool $isEdit): View
