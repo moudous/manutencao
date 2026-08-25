@@ -159,6 +159,7 @@
                         "pessoas.vincular_locais",
                         "agenda.listar",
                         "agenda.visualizar",
+                        "agenda.supervisionar",
                         "agenda.criar",
                         "agenda.excluir",
                         "agenda.restaurar",

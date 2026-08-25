@@ -27,7 +27,7 @@ class LancamentoController extends Controller
             ->first();
 
         $usuarioId = (int) $request->session()->get('gi_context.usuario.id');
-        $supervisor = app(GiPermissionService::class)->permite('agenda.supervisor', $request);
+        $supervisor = app(GiPermissionService::class)->permite('agenda.supervisionar', $request);
         $tecnicos = $supervisor
             ? Pessoa::query()->where('ativo', true)->orderBy('nome')->get(['id', 'nome'])
             : Pessoa::query()->whereKey($usuarioId)->get(['id', 'nome']);
@@ -50,7 +50,7 @@ class LancamentoController extends Controller
     }
     public function show(AgendaPreventiva $agenda,Lancamento $lancamento): View
     {
-        abort_unless((int)$lancamento->agenda_id===(int)$agenda->id,404); $lancamento->load(['equipamento.local.unidade','local','tecnico']);
+        abort_unless((int)$lancamento->agenda_id===(int)$agenda->id,404); $lancamento->load(['equipamento.local.unidade','local','tecnico','situacao']);
         return view('lancamentos.show',compact('agenda','lancamento'));
     }
 
@@ -58,8 +58,9 @@ class LancamentoController extends Controller
     {
         abort_unless((int) $lancamento->agenda_id === (int) $agenda->id, 404);
         abort_if($lancamento->data_arquivamento !== null, 422, 'Não é possível alterar um lançamento arquivado.');
+        abort_if($lancamento->data_inicio !== null, 422, 'Esta manutenção já foi iniciada.');
 
-        $supervisor = app(GiPermissionService::class)->permite('agenda.supervisor', $request);
+        $supervisor = app(GiPermissionService::class)->permite('agenda.supervisionar', $request);
         $data = $request->validate([
             'tecnicos_id' => ['nullable', 'integer', 'exists:manut_pessoas,id'],
             'data_inicio' => ['required', 'date_format:Y-m-d'],
@@ -81,6 +82,7 @@ class LancamentoController extends Controller
     public function concluir(Request $request, AgendaPreventiva $agenda, Lancamento $lancamento): JsonResponse
     {
         abort_unless((int) $lancamento->agenda_id === (int) $agenda->id, 404);
+        abort_unless($lancamento->data_inicio, 422, 'Inicie a manutenção antes de concluir.');
         $data = $request->validate([
             'situacao_id' => ['required', 'integer', Rule::exists('manut_situacao_lancamento', 'id')->where(fn ($query) => $query->where('ativo', true)->whereNull('apagado_em'))],
             'observacao' => ['nullable', 'string', 'max:512'],

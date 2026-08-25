@@ -6,6 +6,7 @@ use App\Models\AgendaPreventiva;
 use App\Models\Compra;
 use App\Models\Despesa;
 use App\Models\Lancamento;
+use App\Services\GiPermissionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +34,7 @@ class DespesaController extends Controller
     {
         $this->ensureLancamento($agenda, $lancamento);
         abort_if($lancamento->data_arquivamento !== null, 422, 'Não é possível alterar um lançamento arquivado.');
+        abort_if(! $lancamento->data_inicio && ! app(GiPermissionService::class)->permite('agenda.supervisionar', $request), 403, 'Inicie a manutenção antes de adicionar despesas.');
         $data = $request->validate(['compra_id'=>['required','integer','exists:manut_compras,id'], 'quantidade'=>['required','numeric','gt:0']]);
 
         $resultado = DB::transaction(function () use ($data, $lancamento): array {
