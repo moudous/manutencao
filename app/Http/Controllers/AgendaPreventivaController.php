@@ -20,15 +20,21 @@ class AgendaPreventivaController extends Controller
         if($request->boolean('include_deleted')) $query->withTrashed();
         $total=(clone $query)->count(); $search=trim((string)$request->input('search.value'));
         if($search!=='') $query->where(fn($q)=>$q->where('obs','like',"%{$search}%")->orWhereHas('equipamento',fn($a)=>$a->where('titulo','like',"%{$search}%")->orWhere('codigo','like',"%{$search}%")));
-        $filtered=(clone $query)->count(); $columns=['id','ativos_id','locais_id',null,'periodicidade','orcamento',null,'lancamentos_count','ativo'];
-        $column=$columns[(int)$request->input('order.0.column',0)]??'id'; $direction=$request->input('order.0.dir')==='asc'?'asc':'desc'; $length=min(max((int)$request->input('length',10),1),100);
-        if ($column === null) $column = 'id';
-        $rows=$query->orderBy($column,$direction)->skip(max((int)$request->input('start',0),0))->take($length)->get()->map(fn(AgendaPreventiva $agenda)=>[
+        $filtered=(clone $query)->count(); $columns=['id','ativos_id','locais_id','proxima_agenda','proximo_orcamento','lancamentos_count','ativo'];
+        $orders=$request->input('order', [['column'=>3, 'dir'=>'desc'], ['column'=>4, 'dir'=>'desc']]);
+        foreach ($orders as $order) {
+            $column=$columns[(int)($order['column']??0)]??'id';
+            $query->orderBy($column,($order['dir']??'desc')==='asc'?'asc':'desc');
+        }
+        $length=min(max((int)$request->input('length',10),1),100);
+        $rows=$query->skip(max((int)$request->input('start',0),0))->take($length)->get()->map(fn(AgendaPreventiva $agenda)=>[
             'id'=>$agenda->id, 'equipamento'=>view('agenda._equipment_link',compact('agenda'))->render(), 'local'=>e($this->locationLabel($agenda->equipamento)),
             'prazo_manutencao'=>$this->deadlineLabel($agenda->proxima_agenda),
+            'prazo_manutencao_classe'=>$this->deadlineClass($agenda->proxima_agenda),
             'periodicidade'=>$agenda->periodicidade??'—',
             'orcamento'=>$agenda->orcamento??'—',
             'prazo_orcamento'=>$this->deadlineLabel($agenda->proximo_orcamento),
+            'prazo_orcamento_classe'=>$this->deadlineClass($agenda->proximo_orcamento),
             'ultima_agenda'=>$agenda->ultima_agenda?->format('d/m/Y')??'—',
             'proxima_agenda'=>$agenda->proxima_agenda?->format('d/m/Y')??'—',
             'proximo_orcamento'=>$agenda->proximo_orcamento?->format('d/m/Y')??'—',
@@ -92,5 +98,13 @@ class AgendaPreventivaController extends Controller
         $days = now()->startOfDay()->diffInDays($date->copy()->startOfDay(), false);
 
         return $days >= 0 ? "falta {$days} dia(s)" : 'atrasado '.abs($days).' dia(s)';
+    }
+    private function deadlineClass($date): string
+    {
+        if (! $date) return '';
+        $overdueDays = -now()->startOfDay()->diffInDays($date->copy()->startOfDay(), false);
+        if ($overdueDays >= 4) return 'prazo-danger';
+        if ($overdueDays >= 1) return 'prazo-warning';
+        return '';
     }
 }
