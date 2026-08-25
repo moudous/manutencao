@@ -38,7 +38,9 @@ class AgendaPreventivaController extends Controller
             'ultima_agenda'=>$agenda->ultima_agenda?->format('d/m/Y')??'—',
             'proxima_agenda'=>$agenda->proxima_agenda?->format('d/m/Y')??'—',
             'proximo_orcamento'=>$agenda->proximo_orcamento?->format('d/m/Y')??'—',
-            'quantidade_lancamentos'=>$agenda->lancamentos_count, 'status'=>view('agenda._status',compact('agenda'))->render(), 'acoes'=>view('agenda._actions',compact('agenda'))->render(),
+            'quantidade_lancamentos'=>$agenda->lancamentos_count,
+            'agendamento_status'=>'<span class="badge rounded-pill '.($agenda->ativo?'text-bg-success':'text-bg-secondary').'">'.($agenda->ativo?'Automático ativado':'Automático desativado').'</span>',
+            'acoes'=>view('agenda._actions',compact('agenda'))->render(),
         ]);
         return response()->json(['draw'=>(int)$request->input('draw'),'recordsTotal'=>$total,'recordsFiltered'=>$filtered,'data'=>$rows]);
     }
@@ -73,7 +75,16 @@ class AgendaPreventivaController extends Controller
     }
     public function show(int $id): View { $agenda=AgendaPreventiva::withTrashed()->with(['equipamento.local.unidade','criador'])->findOrFail($id); return view('agenda.show',compact('agenda')); }
     public function edit(int $id): View { return $this->formView(AgendaPreventiva::withTrashed()->findOrFail($id),true); }
-    public function update(Request $request,int $id): RedirectResponse { AgendaPreventiva::withTrashed()->findOrFail($id)->update($this->validated($request)); return redirect()->route('agenda.index')->with('status','Agenda preventiva atualizada com sucesso.'); }
+    public function update(Request $request,int $id): RedirectResponse
+    {
+        $agenda=AgendaPreventiva::withTrashed()->findOrFail($id); $data=$this->validated($request);
+        DB::transaction(function () use ($request,$agenda,$data): void {
+            $deveCriar=!$agenda->ativo && (bool)($data['ativo']??false) && $request->boolean('criar_proximo_lancamento') && !$agenda->lancamentos()->whereNull('data_arquivamento')->exists();
+            $agenda->update($data);
+            if($deveCriar){$agora=now();$proxima=$agora->copy()->addDays(max(0,(int)$agenda->periodicidade));$orcamento=$proxima->copy()->subDays(max(0,(int)$agenda->orcamento));$agenda->update(['proxima_agenda'=>$proxima,'proximo_orcamento'=>$orcamento]);$agenda->lancamentos()->create(['ativos_id'=>$agenda->ativos_id,'locais_id'=>$agenda->locais_id,'solicitante'=>'Sistema','data_lancamento'=>$agora,'data_orcamento'=>$orcamento,'data_agendamento'=>$proxima,'etapa'=>1,'ativo'=>true]);}
+        });
+        return redirect()->route('agenda.index')->with('status','Agenda preventiva atualizada com sucesso.');
+    }
     public function destroy(int $id): RedirectResponse { AgendaPreventiva::findOrFail($id)->delete(); return redirect()->route('agenda.index',['include_deleted'=>1])->with('status','Agenda movida para os registros apagados.'); }
     public function restore(int $id): RedirectResponse { AgendaPreventiva::onlyTrashed()->findOrFail($id)->restore(); return redirect()->route('agenda.index',['include_deleted'=>1])->with('status','Agenda restaurada com sucesso.'); }
     public function forceDestroy(int $id): RedirectResponse { AgendaPreventiva::onlyTrashed()->findOrFail($id)->forceDelete(); return redirect()->route('agenda.index',['include_deleted'=>1])->with('status','Agenda excluída permanentemente.'); }
@@ -88,7 +99,8 @@ class AgendaPreventivaController extends Controller
         $ativos=Ativo::withTrashed()->with('local.unidade')
             ->where(fn($query)=>$query->where(fn($active)=>$active->where('ativo',true)->whereNull('apagado_em'))->when($agenda->ativos_id,fn($current,$id)=>$current->orWhere('id',$id)))
             ->orderBy('titulo')->get();
-        return view('agenda.form',compact('agenda','isEdit','ativos'));
+        $possuiLancamentoAberto=$agenda->exists && $agenda->lancamentos()->whereNull('data_arquivamento')->exists();
+        return view('agenda.form',compact('agenda','isEdit','ativos','possuiLancamentoAberto'));
     }
     private function assetLabel(?Ativo $ativo): string { return $ativo ? ($ativo->titulo?:"Ativo #{$ativo->id}").' ('.($ativo->codigo?:'sem código').') - '.$this->locationLabel($ativo) : '—'; }
     private function locationLabel(?Ativo $ativo): string { return $ativo?->local ? ($ativo->local->titulo?:'Local sem título').' - '.($ativo->local->unidade?->titulo?:'Unidade não informada') : 'Local não informado - Unidade não informada'; }

@@ -44,8 +44,8 @@ class LancamentoController extends Controller
     {
         $query=$agenda->lancamentos()->whereNotNull('data_arquivamento')->with(['equipamento','local']); $total=(clone $query)->count(); $search=trim((string)$request->input('search.value'));
         if($search!=='')$query->where(fn($q)=>$q->where('solicitante','like',"%{$search}%")->orWhere('problema','like',"%{$search}%")->orWhere('observacao','like',"%{$search}%"));
-        $filtered=(clone $query)->count(); $columns=['id','data_lancamento','solicitante','problema','data_orcamento','data_agendamento','etapa','ativo']; $column=$columns[(int)$request->input('order.0.column',0)]??'id'; $direction=$request->input('order.0.dir')==='asc'?'asc':'desc'; $length=min(max((int)$request->input('length',10),1),100);
-        $rows=$query->orderBy($column,$direction)->skip(max((int)$request->input('start',0),0))->take($length)->get()->map(fn(Lancamento $l)=>['id'=>$l->id,'data_lancamento'=>$l->data_lancamento?->format('d/m/Y H:i')??'—','solicitante'=>e($l->solicitante?:'—'),'problema'=>e($l->problema?:'—'),'data_orcamento'=>$l->data_orcamento?->format('d/m/Y')??'—','data_agendamento'=>$l->data_agendamento?->format('d/m/Y')??'—','etapa'=>$l->etapa??'—','status'=>'<span class="badge '.($l->ativo?'text-bg-success':'text-bg-secondary').'">'.($l->ativo?'Ativo':'Inativo').'</span>','acoes'=>view('lancamentos._actions',['agenda'=>$agenda,'lancamento'=>$l])->render()]);
+        $filtered=(clone $query)->count(); $columns=['id','data_lancamento','solicitante','problema','data_orcamento','data_agendamento','etapa']; $column=$columns[(int)$request->input('order.0.column',0)]??'id'; $direction=$request->input('order.0.dir')==='asc'?'asc':'desc'; $length=min(max((int)$request->input('length',10),1),100);
+        $rows=$query->orderBy($column,$direction)->skip(max((int)$request->input('start',0),0))->take($length)->get()->map(fn(Lancamento $l)=>['id'=>$l->id,'data_lancamento'=>$l->data_lancamento?->format('d/m/Y H:i')??'—','solicitante'=>e($l->solicitante?:'—'),'problema'=>e($l->problema?:'—'),'data_orcamento'=>$l->data_orcamento?->format('d/m/Y')??'—','data_agendamento'=>$l->data_agendamento?->format('d/m/Y')??'—','etapa'=>$l->etapa??'—','acoes'=>view('lancamentos._actions',['agenda'=>$agenda,'lancamento'=>$l])->render()]);
         return response()->json(['draw'=>(int)$request->input('draw'),'recordsTotal'=>$total,'recordsFiltered'=>$filtered,'data'=>$rows]);
     }
     public function show(AgendaPreventiva $agenda,Lancamento $lancamento): View
@@ -98,7 +98,7 @@ class LancamentoController extends Controller
             $proximoOrcamento = $proximaAgenda->copy()->subDays(max(0, (int) $agendaAtual->orcamento));
             $atual->update(['situacao_id'=>$data['situacao_id'], 'observacao'=>$data['observacao'] ?? null, 'etapa'=>4, 'data_arquivamento'=>$agora, 'ativo'=>false]);
             $agendaAtual->update(['ultima_agenda'=>$agora, 'proxima_agenda'=>$proximaAgenda, 'proximo_orcamento'=>$proximoOrcamento]);
-            $agendaAtual->lancamentos()->create([
+            if ($agendaAtual->ativo) $agendaAtual->lancamentos()->create([
                 'ativos_id'=>$atual->ativos_id ?: $agendaAtual->ativos_id,
                 'locais_id'=>$atual->locais_id ?: $agendaAtual->locais_id,
                 'solicitante'=>'Sistema',

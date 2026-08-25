@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 			{data:'prazo_manutencao',render:(data,type,row)=>type==='display'?prazoHtml(data,row,'manutencao'):data},
 			{data:'prazo_orcamento',render:(data,type,row)=>type==='display'?prazoHtml(data,row,'orcamento'):data},
 			{data:'quantidade_lancamentos',searchable:false},
-			{data:'status',searchable:false},
+			{data:'agendamento_status',searchable:false},
 			{data:'acoes',orderable:false,searchable:false}
 		],
 		language:{processing:'Carregando...',search:'Pesquisar:',lengthMenu:'Exibir _MENU_ registros',info:'Exibindo _START_ a _END_ de _TOTAL_ agendamentos',infoEmpty:'Nenhum agendamento encontrado',emptyTable:'Nenhum agendamento cadastrado',zeroRecords:'Nenhum registro encontrado',paginate:{first:'Primeira',last:'Última',next:'Próxima',previous:'Anterior'}}

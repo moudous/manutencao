@@ -1,5 +1,5 @@
 /*
-SQLyog Community v13.1.7 (64 bit)
+SQLyog Community v13.3.0 (64 bit)
 MySQL - 8.0.46-0ubuntu0.24.04.3 : Database - manutencao
 *********************************************************************
 */
@@ -12,7 +12,7 @@ MySQL - 8.0.46-0ubuntu0.24.04.3 : Database - manutencao
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`manutencao` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`manutencao` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
 USE `manutencao`;
 
@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `checklist_problemas`;
 CREATE TABLE `checklist_problemas` (
   `checklistitemid` int NOT NULL,
   `ambiente_id` int DEFAULT NULL,
-  `problema` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `problema` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`checklistitemid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -33,7 +33,12 @@ insert  into `checklist_problemas`(`checklistitemid`,`ambiente_id`,`problema`) v
 (10,1,'wqerqwerasdfasdfa'),
 (32,4,'asdfas asdfasdfasdf'),
 (33,4,'sdfasd asdfasdfasdf'),
-(157,16,'asdfasdf');
+(157,16,'asdfasdf'),
+(234,1,NULL),
+(238,1,'dfasdfadsf'),
+(343,14,'dfadfad'),
+(353,11,'adfasd sdfasdfasdfasdf adsf'),
+(363,12,'mangueira quebrada, foi trocada por outra');
 
 /*Table structure for table `manut_agenda_preventiva` */
 
@@ -53,25 +58,26 @@ CREATE TABLE `manut_agenda_preventiva` (
   `atualizado_em` datetime DEFAULT CURRENT_TIMESTAMP,
   `apagado_em` datetime DEFAULT NULL,
   `ativo` smallint DEFAULT NULL,
+  `agendamento_automatico` tinyint(1) NOT NULL DEFAULT '1',
   `locais_id` int DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb3;
 
 /*Data for the table `manut_agenda_preventiva` */
 
-insert  into `manut_agenda_preventiva`(`id`,`obs`,`ultima_agenda`,`proxima_agenda`,`ativos_id`,`periodicidade`,`orcamento`,`proximo_orcamento`,`criado_por`,`criado_em`,`atualizado_em`,`apagado_em`,`ativo`,`locais_id`) values 
-(1,'teste sdfsadf','2024-02-01 00:00:00','2024-02-04 00:00:00',56,3,2,'2024-02-02 00:00:00',NULL,'2025-04-09 22:42:02','2025-09-29 18:46:08',NULL,1,62),
-(5,'','2025-09-15 20:11:41','2025-09-16 20:11:41',640,1,5,'2025-09-11 20:11:41',NULL,'2025-09-17 20:03:37','2025-09-17 20:09:37',NULL,1,NULL),
-(6,'teste teste 3','2025-09-16 00:00:00','2025-09-24 00:00:00',424,8,3,'2025-09-21 00:00:00',NULL,'2025-09-17 20:10:15','2025-09-23 18:04:48',NULL,1,NULL),
-(7,'','2025-09-23 00:00:00','2025-09-24 00:00:00',1099,1,0,'2025-09-24 00:00:00',NULL,'2025-09-23 18:44:03','2025-10-02 18:27:33',NULL,0,73),
-(8,'','2025-10-29 00:00:00','2025-11-08 00:00:00',1334,10,1,'2025-11-07 00:00:00',NULL,'2025-10-29 20:32:32','2025-10-29 20:33:15',NULL,1,26),
-(9,'','2025-11-04 00:00:00','2026-05-03 00:00:00',25,180,5,'2026-04-28 00:00:00',NULL,'2025-11-04 18:09:56','2025-11-04 18:26:17',NULL,1,19),
-(10,'','2025-12-04 00:00:00','2026-01-03 00:00:00',26,30,5,'2025-12-29 00:00:00',NULL,'2025-12-04 15:27:53','2025-12-04 15:49:16',NULL,1,21),
-(11,'','2025-12-04 00:00:00','2026-12-04 00:00:00',1163,365,0,'2026-12-04 00:00:00',NULL,'2025-12-04 16:06:15','2025-12-04 16:06:15',NULL,1,19),
-(12,'dsfasdfasd asdfasdf afad adf','2026-08-24 23:48:43','2027-02-20 23:48:43',410,180,6,'2027-02-14 23:48:43',NULL,'2026-05-20 17:22:07','2026-08-24 23:48:43',NULL,1,8),
-(13,'asdfa sdfasdfasdfadf','2026-08-24 00:00:00','2026-09-23 23:45:43',28,30,3,'2026-09-20 23:45:43',2,'2026-08-24 23:35:31','2026-08-24 23:45:43',NULL,1,22),
-(14,NULL,'2026-08-24 23:53:36','2026-09-03 23:53:36',343,10,NULL,'2026-09-03 23:53:36',2,'2026-08-24 23:50:47','2026-08-24 23:53:36',NULL,1,1),
-(15,NULL,'2026-08-25 00:08:54','2026-08-26 00:08:54',185,1,2,'2026-08-24 00:08:54',2,'2026-08-25 00:01:29','2026-08-25 00:08:54',NULL,1,52);
+insert  into `manut_agenda_preventiva`(`id`,`obs`,`ultima_agenda`,`proxima_agenda`,`ativos_id`,`periodicidade`,`orcamento`,`proximo_orcamento`,`criado_por`,`criado_em`,`atualizado_em`,`apagado_em`,`ativo`,`agendamento_automatico`,`locais_id`) values 
+(1,'teste sdfsadf','2026-08-25 11:27:21','2026-08-28 11:27:21',56,3,2,'2026-08-26 11:27:21',NULL,'2025-04-09 22:42:02','2026-08-25 11:27:21',NULL,1,1,62),
+(5,'','2025-09-15 20:11:41','2025-09-16 20:11:41',640,1,5,'2025-09-11 20:11:41',NULL,'2025-09-17 20:03:37','2025-09-17 20:09:37',NULL,1,1,NULL),
+(6,'teste teste 3','2025-09-16 00:00:00','2025-09-24 00:00:00',424,8,3,'2025-09-21 00:00:00',NULL,'2025-09-17 20:10:15','2025-09-23 18:04:48',NULL,1,1,NULL),
+(7,'','2025-09-23 00:00:00','2025-09-24 00:00:00',1099,1,0,'2025-09-24 00:00:00',NULL,'2025-09-23 18:44:03','2025-10-02 18:27:33',NULL,0,1,73),
+(8,'','2025-10-29 00:00:00','2025-11-08 00:00:00',1334,10,1,'2025-11-07 00:00:00',NULL,'2025-10-29 20:32:32','2025-10-29 20:33:15',NULL,1,1,26),
+(9,'','2025-11-04 00:00:00','2026-05-03 00:00:00',25,180,5,'2026-04-28 00:00:00',NULL,'2025-11-04 18:09:56','2025-11-04 18:26:17',NULL,1,1,19),
+(10,'','2025-12-04 00:00:00','2026-01-03 00:00:00',26,30,5,'2025-12-29 00:00:00',NULL,'2025-12-04 15:27:53','2025-12-04 15:49:16',NULL,1,1,21),
+(11,'','2025-12-04 00:00:00','2026-12-04 00:00:00',1163,365,0,'2026-12-04 00:00:00',NULL,'2025-12-04 16:06:15','2025-12-04 16:06:15',NULL,1,1,19),
+(12,'dsfasdfasd asdfasdf afad adf','2026-08-25 00:00:00','2027-02-21 00:00:00',410,180,6,'2027-02-15 00:00:00',NULL,'2026-05-20 17:22:07','2026-08-25 12:49:25',NULL,0,0,8),
+(13,'asdfa sdfasdfasdfadf','2026-08-24 00:00:00','2026-09-23 23:45:43',28,30,3,'2026-09-20 23:45:43',2,'2026-08-24 23:35:31','2026-08-24 23:45:43',NULL,1,1,22),
+(14,NULL,'2026-08-25 11:19:32','2026-09-04 11:19:32',343,10,NULL,'2026-09-04 11:19:32',2,'2026-08-24 23:50:47','2026-08-25 11:19:32',NULL,1,1,1),
+(15,NULL,'2026-08-25 00:08:54','2026-08-26 00:08:54',185,1,2,'2026-08-24 00:08:54',2,'2026-08-25 00:01:29','2026-08-25 00:08:54',NULL,1,1,52);
 
 /*Table structure for table `manut_ambientes` */
 
@@ -79,7 +85,7 @@ DROP TABLE IF EXISTS `manut_ambientes`;
 
 CREATE TABLE `manut_ambientes` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `titulo` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `titulo` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `ativo` smallint DEFAULT '1',
   `criado_em` datetime DEFAULT NULL,
   `alterado_em` datetime DEFAULT NULL,
@@ -1543,16 +1549,17 @@ CREATE TABLE `manut_checklist` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `ambiente_id` int DEFAULT NULL,
   `responsavel` int DEFAULT NULL,
-  `turno` enum('m','t','n') COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `turno` enum('m','t','n') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `inicio` datetime DEFAULT NULL,
   `fim` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `manut_checklist` */
 
 insert  into `manut_checklist`(`id`,`ambiente_id`,`responsavel`,`turno`,`inicio`,`fim`) values 
-(1,1,2,'t','2026-08-25 02:22:03','2026-08-25 02:30:52');
+(1,1,2,'t','2026-08-25 02:22:03','2026-08-25 02:30:52'),
+(2,1,2,'t','2026-08-25 08:33:52','2026-08-25 08:43:54');
 
 /*Table structure for table `manut_checklist_itens` */
 
@@ -1565,7 +1572,7 @@ CREATE TABLE `manut_checklist_itens` (
   `equipamento_id` int DEFAULT NULL,
   `ok` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`,`checklist`)
-) ENGINE=InnoDB AUTO_INCREMENT=233 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=463 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `manut_checklist_itens` */
 
@@ -1799,7 +1806,237 @@ insert  into `manut_checklist_itens`(`id`,`checklist`,`ambiente_id`,`equipamento
 (229,1,23,1,1),
 (230,1,23,5,1),
 (231,1,23,6,1),
-(232,1,23,9,1);
+(232,1,23,9,1),
+(233,2,1,9,1),
+(234,2,1,6,0),
+(235,2,1,7,1),
+(236,2,1,5,1),
+(237,2,1,1,1),
+(238,2,1,4,0),
+(239,2,1,2,1),
+(240,2,1,3,1),
+(241,2,1,8,1),
+(242,2,1,10,1),
+(243,2,2,9,1),
+(244,2,2,6,1),
+(245,2,2,5,1),
+(246,2,2,1,1),
+(247,2,2,7,1),
+(248,2,2,4,1),
+(249,2,3,2,1),
+(250,2,3,3,1),
+(251,2,3,8,1),
+(252,2,3,10,1),
+(253,2,3,9,1),
+(254,2,3,6,1),
+(255,2,3,5,1),
+(256,2,3,1,1),
+(257,2,3,7,1),
+(258,2,3,4,1),
+(259,2,2,2,1),
+(260,2,2,3,1),
+(261,2,2,8,1),
+(262,2,2,10,1),
+(263,2,4,9,1),
+(264,2,4,6,1),
+(265,2,4,5,1),
+(266,2,4,1,1),
+(267,2,4,7,1),
+(268,2,4,4,1),
+(269,2,4,2,1),
+(270,2,4,3,1),
+(271,2,4,8,1),
+(272,2,4,10,1),
+(273,2,5,9,1),
+(274,2,5,6,1),
+(275,2,5,5,1),
+(276,2,5,1,1),
+(277,2,5,7,1),
+(278,2,5,4,1),
+(279,2,5,2,1),
+(280,2,5,3,1),
+(281,2,5,8,1),
+(282,2,5,10,1),
+(283,2,6,9,1),
+(284,2,6,6,1),
+(285,2,6,5,1),
+(286,2,6,1,1),
+(287,2,6,7,1),
+(288,2,6,4,1),
+(289,2,6,2,1),
+(290,2,6,3,1),
+(291,2,6,8,1),
+(292,2,6,10,1),
+(293,2,7,9,1),
+(294,2,7,6,1),
+(295,2,7,5,1),
+(296,2,7,1,1),
+(297,2,7,7,1),
+(298,2,7,4,1),
+(299,2,7,2,1),
+(300,2,7,3,1),
+(301,2,7,8,1),
+(302,2,7,10,1),
+(303,2,8,9,1),
+(304,2,8,6,1),
+(305,2,8,5,1),
+(306,2,8,1,1),
+(307,2,8,7,1),
+(308,2,8,4,1),
+(309,2,8,2,1),
+(310,2,8,3,1),
+(311,2,8,8,1),
+(312,2,8,10,1),
+(313,2,9,9,1),
+(314,2,9,6,1),
+(315,2,9,5,1),
+(316,2,9,1,1),
+(317,2,9,7,1),
+(318,2,9,4,1),
+(319,2,9,2,1),
+(320,2,9,3,1),
+(321,2,9,8,1),
+(322,2,9,10,1),
+(323,2,10,9,1),
+(324,2,10,6,1),
+(325,2,10,5,1),
+(326,2,10,1,1),
+(327,2,10,7,1),
+(328,2,10,4,1),
+(329,2,10,2,1),
+(330,2,10,3,1),
+(331,2,10,8,1),
+(332,2,10,10,1),
+(333,2,13,9,1),
+(334,2,13,6,1),
+(335,2,13,5,1),
+(336,2,13,1,1),
+(337,2,13,7,1),
+(338,2,13,4,1),
+(339,2,13,2,1),
+(340,2,13,3,1),
+(341,2,13,8,1),
+(342,2,13,10,1),
+(343,2,14,7,0),
+(344,2,14,9,1),
+(345,2,14,6,1),
+(346,2,14,5,1),
+(347,2,14,1,1),
+(348,2,14,4,1),
+(349,2,14,2,1),
+(350,2,14,3,1),
+(351,2,14,8,1),
+(352,2,14,10,1),
+(353,2,11,8,0),
+(354,2,11,9,1),
+(355,2,11,6,1),
+(356,2,11,5,1),
+(357,2,11,1,1),
+(358,2,11,7,1),
+(359,2,11,4,1),
+(360,2,11,2,1),
+(361,2,11,3,1),
+(362,2,11,10,1),
+(363,2,12,9,0),
+(364,2,12,6,1),
+(365,2,12,5,1),
+(366,2,12,1,1),
+(367,2,12,7,1),
+(368,2,12,4,1),
+(369,2,12,2,1),
+(370,2,12,3,1),
+(371,2,12,8,1),
+(372,2,12,10,1),
+(373,2,15,1,1),
+(374,2,15,3,1),
+(375,2,16,9,1),
+(376,2,16,6,1),
+(377,2,16,5,1),
+(378,2,16,1,1),
+(379,2,16,7,1),
+(380,2,16,4,1),
+(381,2,16,2,1),
+(382,2,16,3,1),
+(383,2,16,8,1),
+(384,2,16,10,1),
+(385,2,17,7,1),
+(386,2,15,9,1),
+(387,2,15,6,1),
+(388,2,15,5,1),
+(389,2,15,7,1),
+(390,2,15,4,1),
+(391,2,15,2,1),
+(392,2,15,8,1),
+(393,2,15,10,1),
+(394,2,17,9,1),
+(395,2,17,6,1),
+(396,2,17,5,1),
+(397,2,17,1,1),
+(398,2,17,4,1),
+(399,2,17,2,1),
+(400,2,17,3,1),
+(401,2,17,8,1),
+(402,2,17,10,1),
+(403,2,18,9,1),
+(404,2,18,6,1),
+(405,2,18,5,1),
+(406,2,18,1,1),
+(407,2,18,7,1),
+(408,2,18,4,1),
+(409,2,18,2,1),
+(410,2,18,3,1),
+(411,2,18,8,1),
+(412,2,18,10,1),
+(413,2,19,9,1),
+(414,2,19,6,1),
+(415,2,19,5,1),
+(416,2,19,1,1),
+(417,2,19,7,1),
+(418,2,19,4,1),
+(419,2,19,2,1),
+(420,2,19,3,1),
+(421,2,19,8,1),
+(422,2,19,10,1),
+(423,2,20,9,1),
+(424,2,20,6,1),
+(425,2,20,5,1),
+(426,2,20,1,1),
+(427,2,20,7,1),
+(428,2,20,4,1),
+(429,2,20,2,1),
+(430,2,20,3,1),
+(431,2,20,8,1),
+(432,2,20,10,1),
+(433,2,21,9,1),
+(434,2,21,6,1),
+(435,2,21,5,1),
+(436,2,21,1,1),
+(437,2,21,7,1),
+(438,2,21,4,1),
+(439,2,21,2,1),
+(440,2,21,3,1),
+(441,2,21,8,1),
+(442,2,21,10,1),
+(443,2,22,9,1),
+(444,2,22,6,1),
+(445,2,22,5,1),
+(446,2,22,1,1),
+(447,2,22,7,1),
+(448,2,22,4,1),
+(449,2,22,2,1),
+(450,2,22,3,1),
+(451,2,22,8,1),
+(452,2,22,10,1),
+(453,2,23,10,1),
+(454,2,23,9,1),
+(455,2,23,6,1),
+(456,2,23,5,1),
+(457,2,23,1,1),
+(458,2,23,7,1),
+(459,2,23,4,1),
+(460,2,23,2,1),
+(461,2,23,3,1),
+(462,2,23,8,1);
 
 /*Table structure for table `manut_compras` */
 
@@ -1825,20 +2062,20 @@ CREATE TABLE `manut_compras` (
 /*Data for the table `manut_compras` */
 
 insert  into `manut_compras`(`id`,`titulo`,`unidade`,`quantidade`,`quantidade_unitaria`,`qtde_utilizada`,`criado_em`,`apagado_em`,`atualizado_em`,`comprador`,`preco`,`data_compra`,`disponivel`) values 
-(1,'parafuso 40mm','un',5,100,100,'2025-07-09 16:43:59',NULL,'2026-08-25 00:08:10',NULL,30,'2025-09-16',1),
+(1,'parafuso 40mm','un',5,100,107,'2025-07-09 16:43:59',NULL,'2026-08-25 11:26:28',NULL,30,'2025-09-16',1),
 (2,'Produto 1','un',3,25,0,'2025-07-09 17:15:18',NULL,'2025-09-10 15:59:47',NULL,14,NULL,1),
 (3,'Produto 2 - teste','un',3,10,0,'2025-07-09 17:32:08',NULL,'2025-08-20 16:40:49',NULL,5,NULL,1),
 (4,'Produto 6','un',2,2,0,'2025-09-16 15:35:42',NULL,'2025-12-07 14:10:22',NULL,20.6,'2025-12-07',0),
-(5,'Agua Sanitária','lts',4,6,5,'2025-09-16 15:35:45',NULL,'2026-08-24 23:29:28',NULL,33,'2025-09-01',1),
-(6,'Massa Plásica','kg',15,1,2.7,'2025-09-16 15:35:48',NULL,'2026-08-24 23:29:26',NULL,10.25,'2025-09-08',1),
+(5,'Agua Sanitária','lts',4,6,5.2,'2025-09-16 15:35:45',NULL,'2026-08-25 11:26:34',NULL,33,'2025-09-01',1),
+(6,'Massa Plásica','kg',15,1,2.8,'2025-09-16 15:35:48',NULL,'2026-08-25 11:18:16',NULL,10.25,'2025-09-08',1),
 (7,'Parafuso 50mm','un',5,102,140,'2025-09-10 17:40:49',NULL,'2026-08-25 00:03:53',NULL,30,'2025-09-08',1),
-(8,'Cordão Algodão 3mm','m',10,50,0.9,'2025-09-16 16:03:21',NULL,'2025-09-30 15:00:53',NULL,5,'2025-09-16',1),
+(8,'Cordão Algodão 3mm','m',10,50,17.9,'2025-09-16 16:03:21',NULL,'2026-08-25 11:57:54',NULL,5,'2025-09-16',1),
 (9,'Abraçadeiras 200mm x 3mm','un',2,100,5,'2025-09-16 17:13:29',NULL,'2025-11-04 18:19:55',NULL,20,'2025-09-16',0),
-(10,'Cola Branca para madeira','lts',3,0.8,NULL,'2025-09-16 17:16:11',NULL,'2025-09-30 19:14:11',NULL,12,'2025-09-16',1),
+(10,'Cola Branca para madeira','lts',3,0.8,2.4,'2025-09-16 17:16:11',NULL,'2026-08-25 11:57:45',NULL,12,'2025-09-16',1),
 (11,'Café 3 Corações 500g','kg',5,0.5,0.1,'2025-09-30 19:30:27','2025-10-02 18:20:58','2025-10-02 18:20:58',NULL,12.3,'2025-09-30',1),
 (12,'Filtro de ar condicionado','un',1,3,3,'2025-11-04 18:22:21',NULL,'2025-12-04 15:43:51',NULL,60,'2025-11-04',1),
 (13,'Parafusos 20mm','un',4,100,400,'2025-12-04 15:39:37',NULL,'2025-12-04 16:21:30',NULL,40,'2025-12-04',1),
-(14,'Parafuso 20mm nova','un',1,100,NULL,'2025-12-04 16:17:31',NULL,'2026-08-24 19:05:15',NULL,45.01,'2025-12-04',1);
+(14,'Parafuso 20mm nova','un',1,100,16,'2025-12-04 16:17:31',NULL,'2026-08-25 11:26:22',NULL,45.01,'2025-12-04',1);
 
 /*Table structure for table `manut_despesas` */
 
@@ -1856,7 +2093,7 @@ CREATE TABLE `manut_despesas` (
   `custo` double DEFAULT NULL,
   `unidade` varchar(3) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8mb3;
 
 /*Data for the table `manut_despesas` */
 
@@ -1925,7 +2162,17 @@ insert  into `manut_despesas`(`id`,`compra_id`,`lancamentos_id`,`quantidade`,`cr
 (65,7,43,30,'2026-08-25 00:03:53','2026-08-25 00:03:53',NULL,NULL,0.058823529411765,'un'),
 (66,1,43,20,'2026-08-25 00:04:14','2026-08-25 00:04:14',NULL,NULL,0.06,'un'),
 (67,1,43,5,'2026-08-25 00:08:03','2026-08-25 00:08:03',NULL,NULL,0.06,'un'),
-(68,1,43,19,'2026-08-25 00:08:10','2026-08-25 00:08:10',NULL,NULL,0.06,'un');
+(68,1,43,19,'2026-08-25 00:08:10','2026-08-25 00:08:10',NULL,NULL,0.06,'un'),
+(69,14,21,5,'2026-08-25 10:55:31','2026-08-25 10:55:31',NULL,NULL,0.4501,'un'),
+(70,6,21,0.1,'2026-08-25 11:18:16','2026-08-25 11:18:16',NULL,NULL,0.68333333333333,'kg'),
+(71,1,21,5,'2026-08-25 11:18:24','2026-08-25 11:18:24',NULL,NULL,0.06,'un'),
+(72,8,42,10,'2026-08-25 11:19:19','2026-08-25 11:19:19',NULL,NULL,0.01,'m'),
+(73,8,45,5,'2026-08-25 11:26:16','2026-08-25 11:26:16',NULL,NULL,0.01,'m'),
+(74,14,45,11,'2026-08-25 11:26:22','2026-08-25 11:26:22',NULL,NULL,0.4501,'un'),
+(75,1,45,2,'2026-08-25 11:26:28','2026-08-25 11:26:28',NULL,NULL,0.06,'un'),
+(76,5,45,0.2,'2026-08-25 11:26:34','2026-08-25 11:26:34',NULL,NULL,1.375,'lts'),
+(77,10,39,2.4,'2026-08-25 11:57:45','2026-08-25 11:57:45',NULL,NULL,5,'lts'),
+(78,8,39,2,'2026-08-25 11:57:54','2026-08-25 11:57:54',NULL,NULL,0.01,'m');
 
 /*Table structure for table `manut_equipamentos` */
 
@@ -1933,7 +2180,7 @@ DROP TABLE IF EXISTS `manut_equipamentos`;
 
 CREATE TABLE `manut_equipamentos` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `titulo` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `titulo` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `ativo` smallint DEFAULT NULL,
   `criado_em` datetime DEFAULT NULL,
   `alterado_em` datetime DEFAULT NULL,
@@ -1981,12 +2228,12 @@ CREATE TABLE `manut_lancamentos` (
   `data_agendamento` datetime DEFAULT NULL,
   `data_inicio` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb3;
 
 /*Data for the table `manut_lancamentos` */
 
 insert  into `manut_lancamentos`(`id`,`agenda_id`,`ativos_id`,`solicitante`,`data_lancamento`,`observacao`,`data_orcamento`,`tecnicos_id`,`criado_em`,`apagado_em`,`atualizado_em`,`situacao_id`,`ativo`,`locais_id`,`tipos_id`,`problema`,`etapa`,`data_arquivamento`,`data_agendamento`,`data_inicio`) values 
-(21,1,NULL,'Sistema','2025-10-01 19:19:00',NULL,NULL,2,'2025-07-09 17:26:42',NULL,'2026-08-24 22:08:53',0,NULL,5,NULL,NULL,3,NULL,NULL,'2026-08-24 22:01:00'),
+(21,1,NULL,'Sistema','2025-10-01 19:19:00','dsfasd asdfadsfadsf',NULL,2,'2025-07-09 17:26:42',NULL,'2026-08-25 11:18:43',1,0,5,NULL,NULL,4,'2026-08-25 11:18:43',NULL,'2026-08-24 22:01:00'),
 (22,5,NULL,'Sistema','2025-09-23 17:25:00',NULL,NULL,NULL,'2025-09-23 17:21:24',NULL,'2025-09-30 18:29:54',0,1,4,NULL,NULL,1,NULL,NULL,NULL),
 (23,6,NULL,'Sistema','2025-10-02 20:20:00',NULL,NULL,NULL,'2025-09-23 17:39:20',NULL,'2025-10-02 20:31:50',0,1,2,NULL,NULL,2,NULL,NULL,NULL),
 (24,5,NULL,NULL,'2025-10-01 19:12:00',NULL,NULL,NULL,'2025-09-23 18:44:03',NULL,'2025-10-02 16:27:56',0,1,1,NULL,NULL,1,NULL,NULL,NULL),
@@ -2005,11 +2252,16 @@ insert  into `manut_lancamentos`(`id`,`agenda_id`,`ativos_id`,`solicitante`,`dat
 (37,12,938,'Sistema',NULL,'sdfasd sdfasdf asdfasdf','2026-11-11 00:00:00',2,'2026-05-20 17:26:34',NULL,'2026-08-24 23:30:52',1,0,15,1,NULL,4,'2026-08-24 23:30:52','2026-11-16 00:00:00','2026-08-24 23:28:00'),
 (38,12,938,'Marcelo Ribeiro da Silva','2026-08-24 23:30:52',NULL,'2027-02-14 23:30:52',2,'2026-08-24 23:30:52',NULL,'2026-08-24 23:48:43',1,0,15,1,NULL,4,'2026-08-24 23:48:43','2027-02-20 23:30:52','2026-08-24 23:47:00'),
 (39,13,28,NULL,'2026-08-24 23:45:43',NULL,'2026-09-20 23:45:43',NULL,'2026-08-24 23:45:43',NULL,'2026-08-24 23:45:43',NULL,1,22,NULL,NULL,1,NULL,'2026-09-23 23:45:43',NULL),
-(40,12,938,'Marcelo Ribeiro da Silva','2026-08-24 23:48:43',NULL,'2027-02-14 23:48:43',NULL,'2026-08-24 23:48:43',NULL,'2026-08-24 23:48:43',NULL,1,15,1,NULL,1,NULL,'2027-02-20 23:48:43',NULL),
+(40,12,938,'Marcelo Ribeiro da Silva','2026-08-24 23:48:43','adsfasd asdf','2027-02-14 23:48:43',2,'2026-08-24 23:48:43',NULL,'2026-08-25 11:24:45',1,0,15,1,NULL,4,'2026-08-25 11:24:45','2027-02-20 23:48:43','2026-08-25 10:08:00'),
 (41,14,343,'Marcelo Ribeiro da Silva','2026-08-24 23:50:47',NULL,'2026-09-03 23:50:47',NULL,'2026-08-24 23:50:47',NULL,'2026-08-24 23:53:36',3,0,1,NULL,NULL,4,'2026-08-24 23:53:36','2026-09-03 23:50:47',NULL),
-(42,14,343,'Marcelo Ribeiro da Silva','2026-08-24 23:53:36',NULL,'2026-09-03 23:53:36',2,'2026-08-24 23:53:36',NULL,'2026-08-24 23:57:49',NULL,1,1,NULL,NULL,3,NULL,'2026-09-03 23:53:36','2026-08-24 23:53:00'),
+(42,14,343,'Marcelo Ribeiro da Silva','2026-08-24 23:53:36','asdfasd adsfasdf','2026-09-03 23:53:36',2,'2026-08-24 23:53:36',NULL,'2026-08-25 11:19:32',2,0,1,NULL,NULL,4,'2026-08-25 11:19:32','2026-09-03 23:53:36','2026-08-24 23:53:00'),
 (43,15,185,'Sistema','2026-08-25 00:01:29',NULL,'2026-08-25 00:01:29',2,'2026-08-25 00:01:29',NULL,'2026-08-25 00:08:54',1,0,52,NULL,NULL,4,'2026-08-25 00:08:54','2026-08-25 00:01:29','2026-08-25 00:03:00'),
-(44,15,185,'Sistema','2026-08-25 00:08:54',NULL,'2026-08-24 00:08:54',NULL,'2026-08-25 00:08:54',NULL,'2026-08-25 00:08:54',NULL,1,52,NULL,NULL,1,NULL,'2026-08-26 00:08:54',NULL);
+(44,15,185,'Sistema','2026-08-25 00:08:54',NULL,'2026-08-24 00:08:54',NULL,'2026-08-25 00:08:54',NULL,'2026-08-25 00:08:54',NULL,1,52,NULL,NULL,1,NULL,'2026-08-26 00:08:54',NULL),
+(45,1,56,'Sistema','2026-08-25 11:18:43','dsfas dasdfasd ds','2026-08-26 11:18:43',2,'2026-08-25 11:18:43',NULL,'2026-08-25 11:27:21',4,0,5,NULL,NULL,4,'2026-08-25 11:27:21','2026-08-28 11:18:43','2026-08-25 11:25:55'),
+(46,14,343,'Sistema','2026-08-25 11:19:32',NULL,'2026-09-04 11:19:32',NULL,'2026-08-25 11:19:32',NULL,'2026-08-25 11:19:32',NULL,1,1,NULL,NULL,1,NULL,'2026-09-04 11:19:32',NULL),
+(47,12,938,'Sistema','2026-08-25 11:24:45',NULL,'2027-02-15 11:24:45',2,'2026-08-25 11:24:45',NULL,'2026-08-25 12:42:00',5,0,15,1,NULL,4,'2026-08-25 12:42:00','2027-02-21 11:24:45','2026-08-25 11:37:00'),
+(48,1,56,'Sistema','2026-08-25 11:27:21',NULL,'2026-08-26 11:27:21',2,'2026-08-25 11:27:21',NULL,'2026-08-25 11:32:40',NULL,1,5,NULL,NULL,3,NULL,'2026-08-28 11:27:21','2026-08-25 11:32:23'),
+(49,12,938,'Sistema','2026-08-25 12:42:00',NULL,'2027-02-15 12:42:00',NULL,'2026-08-25 12:42:00',NULL,'2026-08-25 12:42:00',NULL,1,15,1,NULL,1,NULL,'2027-02-21 12:42:00',NULL);
 
 /*Table structure for table `manut_locais` */
 
@@ -2191,9 +2443,9 @@ DROP TABLE IF EXISTS `manut_pessoas`;
 
 CREATE TABLE `manut_pessoas` (
   `id` bigint unsigned NOT NULL,
-  `nome` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `perfil` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nome` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `perfil` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `perfil_id` bigint unsigned DEFAULT NULL,
   `locais_id` int unsigned DEFAULT NULL,
   `ativo` smallint NOT NULL DEFAULT '1',
@@ -2207,7 +2459,7 @@ CREATE TABLE `manut_pessoas` (
 /*Data for the table `manut_pessoas` */
 
 insert  into `manut_pessoas`(`id`,`nome`,`email`,`perfil`,`perfil_id`,`locais_id`,`ativo`,`criado_em`,`atualizado_em`) values 
-(2,'Marcelo Ribeiro da Silva','marcelo@nossafco.com.br','T.I',112,19,1,'2026-08-24 20:43:33','2026-08-24 20:50:55'),
+(2,'Marcelo Ribeiro da Silva','marcelo@nossafco.com.br','T.I',34,19,1,'2026-08-24 20:43:33','2026-08-25 08:24:46'),
 (4,'Marcelo Ribeiro Aluno','marcelo.ribeiro@nossafco.com.br','T.I',112,NULL,1,'2026-08-24 20:45:13','2026-08-24 20:45:13');
 
 /*Table structure for table `manut_situacao_lancamento` */
@@ -2300,10 +2552,10 @@ DROP TABLE IF EXISTS `migrations`;
 
 CREATE TABLE `migrations` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `migration` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `migrations` */
 
@@ -2327,7 +2579,8 @@ insert  into `migrations`(`id`,`migration`,`batch`) values
 (17,'2026_08_25_010000_create_manut_equipamentos_table',16),
 (18,'2026_08_25_020000_create_manut_checklist_table',17),
 (19,'2026_08_25_030000_create_manut_checklist_itens_table',18),
-(20,'2026_08_25_040000_create_checklist_problemas_table',18);
+(20,'2026_08_25_040000_create_checklist_problemas_table',18),
+(21,'2026_08_25_050000_add_agendamento_automatico_to_agenda_preventiva',19);
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

@@ -147,7 +147,7 @@ class ManutencaoController extends Controller
             $orcamento = $proxima->copy()->subDays(max(0, (int)$agenda->orcamento));
             $atual->update(['situacao_id'=>$data['situacao_id'], 'observacao'=>$data['observacao']??null, 'etapa'=>4, 'data_arquivamento'=>$agora, 'ativo'=>false]);
             $agenda->update(['ultima_agenda'=>$agora, 'proxima_agenda'=>$proxima, 'proximo_orcamento'=>$orcamento]);
-            $agenda->lancamentos()->create(['ativos_id'=>$atual->ativos_id?:$agenda->ativos_id, 'locais_id'=>$atual->locais_id?:$agenda->locais_id, 'solicitante'=>'Sistema', 'data_lancamento'=>$agora, 'data_orcamento'=>$orcamento, 'data_agendamento'=>$proxima, 'tipos_id'=>$atual->tipos_id, 'etapa'=>1, 'ativo'=>true]);
+            if ($agenda->ativo) $agenda->lancamentos()->create(['ativos_id'=>$atual->ativos_id?:$agenda->ativos_id, 'locais_id'=>$atual->locais_id?:$agenda->locais_id, 'solicitante'=>'Sistema', 'data_lancamento'=>$agora, 'data_orcamento'=>$orcamento, 'data_agendamento'=>$proxima, 'tipos_id'=>$atual->tipos_id, 'etapa'=>1, 'ativo'=>true]);
         });
         return response()->json(['message'=>'Manutenção concluída e arquivada.', 'redirect'=>route('manutencao.index', ['filtro'=>$request->input('filtro','hoje')])]);
     }
