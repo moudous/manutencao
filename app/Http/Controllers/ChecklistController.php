@@ -78,12 +78,13 @@ class ChecklistController extends Controller
     public function completedIndex(): View { return view('checklist.completed-index'); }
     public function completedData(Request $request): JsonResponse
     {
-        $query = Checklist::query()->whereNotNull('fim')->with(['clinica','pessoaResponsavel']);
+        $query = Checklist::query()->whereNotNull('fim')->with(['clinica','pessoaResponsavel','itens']);
         $total=(clone $query)->count(); $search=trim((string)$request->input('search.value'));
         if($search!=='')$query->where(fn($q)=>$q->whereHas('clinica',fn($c)=>$c->where('titulo','like',"%{$search}%"))->orWhereHas('pessoaResponsavel',fn($p)=>$p->where('nome','like',"%{$search}%")));
-        $filtered=(clone $query)->count(); $columns=['id','ambiente_id','responsavel','turno','inicio','fim']; $column=$columns[(int)$request->input('order.0.column',0)]??'id';$direction=$request->input('order.0.dir')==='asc'?'asc':'desc';$length=min(max((int)$request->input('length',10),1),100);
+        $filtered=(clone $query)->count(); $columns=['id','ambiente_id','responsavel','turno',null,'inicio','fim']; $column=$columns[(int)$request->input('order.0.column',0)]??'id';$direction=$request->input('order.0.dir')==='asc'?'asc':'desc';$length=min(max((int)$request->input('length',10),1),100);
+        if ($column === null) $column = 'id';
         $podeVisualizar=app(GiPermissionService::class)->permite('checklist.visualizar',$request);
-        $rows=$query->orderBy($column,$direction)->skip(max((int)$request->input('start',0),0))->take($length)->get()->map(fn(Checklist $item)=>['id'=>$item->id,'clinica'=>e($item->clinica?->titulo?:'—'),'responsavel'=>e($item->pessoaResponsavel?->nome?:'—'),'turno'=>$this->turno($item->turno),'inicio'=>$item->inicio?->format('d/m/Y H:i')??'—','fim'=>$item->fim?->format('d/m/Y H:i')??'—','duracao'=>$item->inicio&&$item->fim?$item->inicio->diff($item->fim)->format('%H:%I:%S'):'—','acoes'=>$podeVisualizar?'<a href="'.e(route('checklist_terminados.show',$item,false)).'" class="btn btn-sm btn-outline-dark listagem-acao" title="Visualizar"><i class="bi bi-eye-fill"></i></a>':'']);
+        $rows=$query->orderBy($column,$direction)->skip(max((int)$request->input('start',0),0))->take($length)->get()->map(fn(Checklist $item)=>['id'=>$item->id,'clinica'=>e($item->clinica?->titulo?:'—'),'responsavel'=>e($item->pessoaResponsavel?->nome?:'—'),'turno'=>$this->turno($item->turno),'problemas'=>$this->problemRooms($item),'inicio'=>$item->inicio?->format('d/m/Y H:i')??'—','fim'=>$item->fim?->format('d/m/Y H:i')??'—','duracao'=>$item->inicio&&$item->fim?$item->inicio->diff($item->fim)->format('%H:%I:%S'):'—','acoes'=>$podeVisualizar?'<a href="'.e(route('checklist_terminados.show',$item,false)).'" class="btn btn-sm btn-outline-dark listagem-acao" title="Visualizar"><i class="bi bi-eye-fill"></i></a>':'']);
         return response()->json(['draw'=>(int)$request->input('draw'),'recordsTotal'=>$total,'recordsFiltered'=>$filtered,'data'=>$rows]);
     }
 
@@ -104,6 +105,18 @@ class ChecklistController extends Controller
         $total=Equipamento::query()->where('ativo',true)->count();$result=[];
         for($room=1;$room<=(int)$checklist->clinica?->consultorios;$room++){ $items=$checklist->itens->where('ambiente_id',$room);$result[$room]=$items->isEmpty()?'empty':($items->count()<$total?'partial':($items->contains(fn($i)=>!$i->ok)?'warning':'complete')); }
         return $result;
+    }
+    private function problemRooms(Checklist $checklist): string
+    {
+        $rooms = $checklist->itens
+            ->where('ok', 0)
+            ->pluck('ambiente_id')
+            ->unique()
+            ->sort()
+            ->map(fn ($room) => str_pad((string) $room, 2, '0', STR_PAD_LEFT))
+            ->values();
+
+        return $rooms->isNotEmpty() ? $rooms->implode(', ') : '—';
     }
     private function turno(?string $turno): string { return ['m'=>'Manhã','t'=>'Tarde','n'=>'Noite'][$turno]??'—'; }
 }
