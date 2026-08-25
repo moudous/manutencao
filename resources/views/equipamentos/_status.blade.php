@@ -1,0 +1,1 @@
+<span class="badge status-badge {{ $equipamento->trashed()?'text-bg-danger':($equipamento->ativo?'text-bg-success':'text-bg-secondary') }}">{{ $equipamento->trashed()?'Apagado':($equipamento->ativo?'Ativado':'Desativado') }}</span>

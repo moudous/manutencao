@@ -13,6 +13,10 @@ use App\Http\Controllers\CompraController;
 use App\Http\Controllers\LancamentoController;
 use App\Http\Controllers\OrcamentoController;
 use App\Http\Controllers\DespesaController;
+use App\Http\Controllers\CorretivaController;
+use App\Http\Controllers\ClinicaController;
+use App\Http\Controllers\EquipamentoController;
+use App\Http\Controllers\ChecklistController;
 use App\Services\GiPessoaSynchronizer;
 
 Route::get('/auth/gi', function (Request $request) {
@@ -173,4 +177,54 @@ Route::prefix('compras')->name('compras.')->middleware('gi.session')->group(func
     Route::patch('/{id}/restore',[CompraController::class,'restore'])->middleware('gi.permission:compras.restaurar')->name('restore');
     Route::delete('/{id}/force',[CompraController::class,'forceDestroy'])->middleware('gi.permission:compras.excluir_permanentemente')->name('force-destroy');
     Route::delete('/{id}',[CompraController::class,'destroy'])->middleware('gi.permission:compras.excluir')->name('destroy');
+});
+
+Route::prefix('corretiva')->name('corretiva.')->middleware('gi.session')->group(function (): void {
+    Route::get('/', [CorretivaController::class, 'index'])->middleware('gi.permission:corretiva.listar')->name('index');
+    Route::get('/dados', [CorretivaController::class, 'data'])->middleware('gi.permission:corretiva.listar')->name('data');
+    Route::get('/create', [CorretivaController::class, 'create'])->middleware('gi.permission:corretiva.criar')->name('create');
+    Route::post('/', [CorretivaController::class, 'store'])->middleware('gi.permission:corretiva.criar')->name('store');
+    Route::get('/{id}', [CorretivaController::class, 'show'])->middleware('gi.permission:corretiva.visualizar')->name('show');
+    Route::get('/{id}/edit', [CorretivaController::class, 'edit'])->middleware('gi.permission:corretiva.editar')->name('edit');
+    Route::put('/{id}', [CorretivaController::class, 'update'])->middleware('gi.permission:corretiva.editar')->name('update');
+    Route::delete('/{id}', [CorretivaController::class, 'destroy'])->middleware('gi.permission:corretiva.excluir')->name('destroy');
+});
+
+Route::prefix('clinicas')->name('clinicas.')->middleware('gi.session')->group(function (): void {
+    Route::get('/', [ClinicaController::class, 'index'])->middleware('gi.permission:clinica.listar')->name('index');
+    Route::get('/dados', [ClinicaController::class, 'data'])->middleware('gi.permission:clinica.listar')->name('data');
+    Route::get('/create', [ClinicaController::class, 'create'])->middleware('gi.permission:clinica.criar')->name('create');
+    Route::post('/', [ClinicaController::class, 'store'])->middleware('gi.permission:clinica.criar')->name('store');
+    Route::get('/{id}', [ClinicaController::class, 'show'])->middleware('gi.permission:clinica.visualizar')->name('show');
+    Route::get('/{id}/edit', [ClinicaController::class, 'edit'])->middleware('gi.permission:clinica.editar')->name('edit');
+    Route::put('/{id}', [ClinicaController::class, 'update'])->middleware('gi.permission:clinica.editar')->name('update');
+    Route::patch('/{id}/restore', [ClinicaController::class, 'restore'])->middleware('gi.permission:clinica.restaurar')->name('restore');
+    Route::delete('/{id}/force', [ClinicaController::class, 'forceDestroy'])->middleware('gi.permission:clinica.excluir_permanentemente')->name('force-destroy');
+    Route::delete('/{id}', [ClinicaController::class, 'destroy'])->middleware('gi.permission:clinica.excluir')->name('destroy');
+});
+
+Route::prefix('equipamentos')->name('equipamentos.')->middleware('gi.session')->group(function (): void {
+    Route::get('/', [EquipamentoController::class, 'index'])->middleware('gi.permission:equipamentos.listar')->name('index');
+    Route::get('/dados', [EquipamentoController::class, 'data'])->middleware('gi.permission:equipamentos.listar')->name('data');
+    Route::get('/create', [EquipamentoController::class, 'create'])->middleware('gi.permission:equipamentos.criar')->name('create');
+    Route::post('/', [EquipamentoController::class, 'store'])->middleware('gi.permission:equipamentos.criar')->name('store');
+    Route::get('/{id}', [EquipamentoController::class, 'show'])->middleware('gi.permission:equipamentos.visualizar')->name('show');
+    Route::get('/{id}/edit', [EquipamentoController::class, 'edit'])->middleware('gi.permission:equipamentos.editar')->name('edit');
+    Route::put('/{id}', [EquipamentoController::class, 'update'])->middleware('gi.permission:equipamentos.editar')->name('update');
+    Route::patch('/{id}/restore', [EquipamentoController::class, 'restore'])->middleware('gi.permission:equipamentos.restaurar')->name('restore');
+    Route::delete('/{id}/force', [EquipamentoController::class, 'forceDestroy'])->middleware('gi.permission:equipamentos.excluir_permanentemente')->name('force-destroy');
+    Route::delete('/{id}', [EquipamentoController::class, 'destroy'])->middleware('gi.permission:equipamentos.excluir')->name('destroy');
+});
+
+Route::prefix('checklist')->name('checklist.')->middleware('gi.session')->group(function (): void {
+    Route::get('/', [ChecklistController::class, 'index'])->middleware('gi.permission:checklist.listar')->name('index');
+    Route::post('/iniciar', [ChecklistController::class, 'start'])->middleware('gi.permission:checklist.criar')->name('start');
+    Route::put('/{checklist}/item', [ChecklistController::class, 'updateItem'])->middleware('gi.permission:checklist.editar')->name('item');
+    Route::post('/{checklist}/finalizar', [ChecklistController::class, 'finish'])->middleware('gi.permission:checklist.finalizar')->name('finish');
+});
+
+Route::prefix('checklist_terminados')->name('checklist_terminados.')->middleware('gi.session')->group(function (): void {
+    Route::get('/', [ChecklistController::class, 'completedIndex'])->middleware('gi.permission:checklist.listar')->name('index');
+    Route::get('/dados', [ChecklistController::class, 'completedData'])->middleware('gi.permission:checklist.listar')->name('data');
+    Route::get('/{checklist}', [ChecklistController::class, 'completedShow'])->middleware('gi.permission:checklist.visualizar')->name('show');
 });

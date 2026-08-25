@@ -1,0 +1,1 @@
+<span class="badge status-badge {{ $clinica->trashed()?'text-bg-danger':($clinica->ativo?'text-bg-success':'text-bg-secondary') }}">{{ $clinica->trashed()?'Apagada':($clinica->ativo?'Ativada':'Desativada') }}</span>

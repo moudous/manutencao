@@ -1,0 +1,5 @@
+@extends('layouts.app')
+@section('title','Visualizar clínica')
+@section('content')
+<div class="d-flex justify-content-between align-items-start mb-4"><div><h1 class="page-title">Clínica</h1><p class="page-description mb-0">Consulte os dados da clínica.</p></div><a href="{{ route('clinicas.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Voltar</a></div>@php $campos=[['ID',$clinica->id],['Título',$clinica->titulo],['Quantidade de consultórios',$clinica->consultorios],['Status',$clinica->trashed()?'Apagada':($clinica->ativo?'Ativada':'Desativada')],['Criado em',$clinica->criado_em?->format('d/m/Y H:i')],['Alterado em',$clinica->alterado_em?->format('d/m/Y H:i')],['Apagado em',$clinica->apagado_em?->format('d/m/Y H:i')]]; @endphp<div class="card content-card"><div class="card-header"><h5>Dados da clínica</h5></div><div class="card-body p-4"><div class="row g-3">@foreach($campos as [$label,$value])<div class="col-md-6"><div class="form-label">{{ $label }}</div><div class="form-control bg-body-tertiary h-auto text-break">{{ filled($value)?$value:'—' }}</div></div>@endforeach</div></div></div>
+@endsection

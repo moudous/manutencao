@@ -1,0 +1,499 @@
+{
+    "schema": "gi.perfis-menus.v1",
+    "exportado_em": "2026-08-25T02:20:35-03:00",
+    "sistema": {
+        "id": 16,
+        "nome": "Sistema de Manutenção",
+        "sigla": "MANUt"
+    },
+    "perfis": [
+        {
+            "id": 113,
+            "nome": "Gestão Clínica",
+            "ativo": true,
+            "permissoes_aplicacoes_externas": [
+                {
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    },
+                    "permissoes": [
+                        "ativos.listar",
+                        "locais.listar"
+                    ]
+                }
+            ],
+            "menus": [
+                {
+                    "id": 343,
+                    "texto": "Ativos",
+                    "icone": "fa-classic fa-solid fa-tachograph-digital",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/ativos",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 1,
+                    "permissoes_externas": [
+                        "ativos.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 344,
+                    "texto": "Locais",
+                    "icone": "fa-classic fa-solid fa-building-user",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/locais",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 2,
+                    "permissoes_externas": [
+                        "locais.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                }
+            ]
+        },
+        {
+            "id": 114,
+            "nome": "Supervisor Manutenção",
+            "ativo": true,
+            "permissoes_aplicacoes_externas": [
+                {
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    },
+                    "permissoes": [
+                        "ativos.listar",
+                        "locais.listar"
+                    ]
+                }
+            ],
+            "menus": [
+                {
+                    "id": 345,
+                    "texto": "Ativos",
+                    "icone": "fa-classic fa-solid fa-tachograph-digital",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/ativos",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 1,
+                    "permissoes_externas": [
+                        "ativos.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 346,
+                    "texto": "Locais",
+                    "icone": "fa-classic fa-solid fa-building-user",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/locais",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 2,
+                    "permissoes_externas": [
+                        "locais.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                }
+            ]
+        },
+        {
+            "id": 112,
+            "nome": "T.I",
+            "ativo": true,
+            "permissoes_aplicacoes_externas": [
+                {
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    },
+                    "permissoes": [
+                        "teste.visualizar",
+                        "ativos.listar",
+                        "ativos.visualizar",
+                        "ativos.criar",
+                        "ativos.excluir",
+                        "ativos.restaurar",
+                        "ativos.excluir_permanentemente",
+                        "locais.listar",
+                        "locais.visualizar",
+                        "locais.criar",
+                        "locais.excluir",
+                        "locais.restaurar",
+                        "locais.excluir_permanentemente",
+                        "unidades.listar",
+                        "unidades.visualizar",
+                        "unidades.criar",
+                        "unidades.excluir",
+                        "unidades.restaurar",
+                        "unidades.excluir_permanentemente",
+                        "pessoas.listar",
+                        "pessoas.visualizar",
+                        "pessoas.vincular_locais",
+                        "agenda.listar",
+                        "agenda.visualizar",
+                        "agenda.criar",
+                        "agenda.excluir",
+                        "agenda.restaurar",
+                        "agenda.excluir_permanentemente",
+                        "compras.listar",
+                        "compras.visualizar",
+                        "compras.criar",
+                        "compras.editar",
+                        "compras.excluir",
+                        "compras.restaurar",
+                        "compras.excluir_permanentemente",
+                        "corretiva.listar",
+                        "corretiva.visualizar",
+                        "corretiva.criar",
+                        "corretiva.editar",
+                        "corretiva.excluir",
+                        "corretiva.restaurar",
+                        "corretiva.excluir_permanentemente",
+                        "checklist.listar",
+                        "checklist.visualizar",
+                        "checklist.criar",
+                        "checklist.editar",
+                        "checklist.excluir",
+                        "checklist.restaurar",
+                        "checklist.excluir_permanentemente",
+                        "livro.listar",
+                        "livro.visualizar",
+                        "livro.criar",
+                        "livro.editar",
+                        "livro.excluir",
+                        "livro.restaurar",
+                        "livro.excluir_permanentemente",
+                        "clinica.listar",
+                        "clinica.visualizar",
+                        "clinica.criar",
+                        "clinica.editar",
+                        "clinica.excluir",
+                        "clinica.restaurar",
+                        "clinica.excluir_permanentemente",
+                        "equipamentos.listar",
+                        "equipamentos.visualizar",
+                        "equipamentos.criar",
+                        "equipamentos.editar",
+                        "equipamentos.excluir",
+                        "equipamentos.restaurar",
+                        "equipamentos.excluir_permanentemente"
+                    ]
+                }
+            ],
+            "menus": [
+                {
+                    "id": 331,
+                    "texto": "Teste",
+                    "icone": "bi bi-bug",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 1,
+                    "permissoes_externas": [],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 332,
+                    "texto": "Ativos",
+                    "icone": "fa-classic fa-solid fa-tachograph-digital",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/ativos",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 2,
+                    "permissoes_externas": [
+                        "ativos.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 333,
+                    "texto": "Locais",
+                    "icone": "fa-classic fa-solid fa-building-user",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/locais",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 3,
+                    "permissoes_externas": [
+                        "locais.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 334,
+                    "texto": "Unidades",
+                    "icone": "fa-classic fa-solid fa-building",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/unidades",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 4,
+                    "permissoes_externas": [
+                        "unidades.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 335,
+                    "texto": "Pessoas",
+                    "icone": "a-classic fa-solid fa-circle-user",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/pessoas",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 5,
+                    "permissoes_externas": [
+                        "pessoas.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 336,
+                    "texto": "Agenda",
+                    "icone": "bi bi-calendar-date",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/agenda",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 6,
+                    "permissoes_externas": [
+                        "agenda.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 337,
+                    "texto": "Compras",
+                    "icone": "bi bi-cart4",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/compras",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 7,
+                    "permissoes_externas": [
+                        "compras.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 338,
+                    "texto": "Corretiva",
+                    "icone": "bi bi-wrench-adjustable",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/corretiva",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 8,
+                    "permissoes_externas": [
+                        "corretiva.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 339,
+                    "texto": "CheckList Diário",
+                    "icone": "bi bi-card-checklist",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/checklist",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 9,
+                    "permissoes_externas": [
+                        "checklist.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 340,
+                    "texto": "Livro de Ocorrências",
+                    "icone": "bi bi-book",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/livro",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 10,
+                    "permissoes_externas": [
+                        "livro.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 341,
+                    "texto": "Clínicas",
+                    "icone": "bi bi-clipboard2-pulse",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/clinicas",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 11,
+                    "permissoes_externas": [
+                        "clinica.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 342,
+                    "texto": "Equipamentos / Itens",
+                    "icone": "bi bi-gpu-card",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/equipamentos",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 12,
+                    "permissoes_externas": [
+                        "equipamentos.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                }
+            ]
+        },
+        {
+            "id": 111,
+            "nome": "Tecnico de Manutenção",
+            "ativo": true,
+            "permissoes_aplicacoes_externas": [
+                {
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    },
+                    "permissoes": [
+                        "ativos.listar",
+                        "locais.listar"
+                    ]
+                }
+            ],
+            "menus": [
+                {
+                    "id": 347,
+                    "texto": "Ativos",
+                    "icone": "fa-classic fa-solid fa-tachograph-digital",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/ativos",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 1,
+                    "permissoes_externas": [
+                        "ativos.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 348,
+                    "texto": "Locais",
+                    "icone": "fa-classic fa-solid fa-building-user",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/locais",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 2,
+                    "permissoes_externas": [
+                        "locais.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                }
+            ]
+        }
+    ]
+}
