@@ -17,6 +17,7 @@ use App\Http\Controllers\CorretivaController;
 use App\Http\Controllers\ClinicaController;
 use App\Http\Controllers\EquipamentoController;
 use App\Http\Controllers\ChecklistController;
+use App\Http\Controllers\ManutencaoController;
 use App\Services\GiPessoaSynchronizer;
 
 Route::get('/auth/gi', function (Request $request) {
@@ -79,6 +80,15 @@ Route::post('/manutencao/{acao}', function (Request $request, string $acao) {
 
     return redirect('/')->with('manutencao', $mensagem);
 })->name('manutencao.executar');
+
+Route::prefix('manutencao')->name('manutencao.')->middleware('gi.session')->group(function (): void {
+    Route::get('/', [ManutencaoController::class, 'index'])->middleware('gi.permission:manutencao.listar')->name('index');
+    Route::post('/{lancamento}/iniciar', [ManutencaoController::class, 'iniciar'])->middleware('gi.permission:manutencao.editar')->name('iniciar');
+    Route::post('/{lancamento}/despesas/visualizar', [ManutencaoController::class, 'visualizarDespesas'])->middleware('gi.permission:manutencao.editar')->name('despesas.visualizar');
+    Route::post('/{lancamento}/despesas', [ManutencaoController::class, 'adicionarDespesa'])->middleware('gi.permission:manutencao.editar')->name('despesas.store');
+    Route::delete('/{lancamento}/despesas/{despesa}', [ManutencaoController::class, 'excluirDespesa'])->middleware('gi.permission:manutencao.editar')->name('despesas.destroy');
+    Route::post('/{lancamento}/concluir', [ManutencaoController::class, 'concluir'])->middleware('gi.permission:manutencao.editar')->name('concluir');
+});
 
 Route::get('/gi/{resource}', function (Request $request, string $resource) {
     abort_unless($request->session()->has('gi_context'), 401);

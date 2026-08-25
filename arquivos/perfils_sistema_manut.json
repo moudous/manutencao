@@ -163,6 +163,9 @@
                         "agenda.excluir",
                         "agenda.restaurar",
                         "agenda.excluir_permanentemente",
+                        "manutencao.listar",
+                        "manutencao.visualizar",
+                        "manutencao.editar",
                         "compras.listar",
                         "compras.visualizar",
                         "compras.criar",
@@ -323,6 +326,25 @@
                 },
                 {
                     "id": 337,
+                    "texto": "Manutenção",
+                    "icone": "bi bi-tools",
+                    "tipo_link": "external_embed",
+                    "classe": null,
+                    "link": "/manutencao",
+                    "extra": null,
+                    "ativo": true,
+                    "ordem": 7,
+                    "permissoes_externas": [
+                        "manutencao.listar"
+                    ],
+                    "aplicacao_externa": {
+                        "id": 10,
+                        "nome": "Aplicação da Manutenção",
+                        "slug": "manutencao"
+                    }
+                },
+                {
+                    "id": 350,
                     "texto": "Compras",
                     "icone": "bi bi-cart4",
                     "tipo_link": "external_embed",
