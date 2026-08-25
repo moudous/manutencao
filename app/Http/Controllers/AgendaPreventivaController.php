@@ -20,12 +20,18 @@ class AgendaPreventivaController extends Controller
         if($request->boolean('include_deleted')) $query->withTrashed();
         $total=(clone $query)->count(); $search=trim((string)$request->input('search.value'));
         if($search!=='') $query->where(fn($q)=>$q->where('obs','like',"%{$search}%")->orWhereHas('equipamento',fn($a)=>$a->where('titulo','like',"%{$search}%")->orWhere('codigo','like',"%{$search}%")));
-        $filtered=(clone $query)->count(); $columns=['id','ativos_id','locais_id','ultima_agenda','periodicidade','proxima_agenda','orcamento','proximo_orcamento','lancamentos_count','ativo'];
+        $filtered=(clone $query)->count(); $columns=['id','ativos_id','locais_id',null,'periodicidade','orcamento',null,'lancamentos_count','ativo'];
         $column=$columns[(int)$request->input('order.0.column',0)]??'id'; $direction=$request->input('order.0.dir')==='asc'?'asc':'desc'; $length=min(max((int)$request->input('length',10),1),100);
+        if ($column === null) $column = 'id';
         $rows=$query->orderBy($column,$direction)->skip(max((int)$request->input('start',0),0))->take($length)->get()->map(fn(AgendaPreventiva $agenda)=>[
             'id'=>$agenda->id, 'equipamento'=>view('agenda._equipment_link',compact('agenda'))->render(), 'local'=>e($this->locationLabel($agenda->equipamento)),
-            'ultima_agenda'=>$agenda->ultima_agenda?->format('d/m/Y')??'—', 'periodicidade'=>$agenda->periodicidade??'—', 'proxima_agenda'=>$agenda->proxima_agenda?->format('d/m/Y')??'—',
-            'orcamento'=>$agenda->orcamento??'—', 'proximo_orcamento'=>$agenda->proximo_orcamento?->format('d/m/Y')??'—',
+            'prazo_manutencao'=>$this->deadlineLabel($agenda->proxima_agenda),
+            'periodicidade'=>$agenda->periodicidade??'—',
+            'orcamento'=>$agenda->orcamento??'—',
+            'prazo_orcamento'=>$this->deadlineLabel($agenda->proximo_orcamento),
+            'ultima_agenda'=>$agenda->ultima_agenda?->format('d/m/Y')??'—',
+            'proxima_agenda'=>$agenda->proxima_agenda?->format('d/m/Y')??'—',
+            'proximo_orcamento'=>$agenda->proximo_orcamento?->format('d/m/Y')??'—',
             'quantidade_lancamentos'=>$agenda->lancamentos_count, 'status'=>view('agenda._status',compact('agenda'))->render(), 'acoes'=>view('agenda._actions',compact('agenda'))->render(),
         ]);
         return response()->json(['draw'=>(int)$request->input('draw'),'recordsTotal'=>$total,'recordsFiltered'=>$filtered,'data'=>$rows]);
@@ -80,4 +86,11 @@ class AgendaPreventivaController extends Controller
     }
     private function assetLabel(?Ativo $ativo): string { return $ativo ? ($ativo->titulo?:"Ativo #{$ativo->id}").' ('.($ativo->codigo?:'sem código').') - '.$this->locationLabel($ativo) : '—'; }
     private function locationLabel(?Ativo $ativo): string { return $ativo?->local ? ($ativo->local->titulo?:'Local sem título').' - '.($ativo->local->unidade?->titulo?:'Unidade não informada') : 'Local não informado - Unidade não informada'; }
+    private function deadlineLabel($date): string
+    {
+        if (! $date) return '—';
+        $days = now()->startOfDay()->diffInDays($date->copy()->startOfDay(), false);
+
+        return $days >= 0 ? "falta {$days} dia(s)" : 'atrasado '.abs($days).' dia(s)';
+    }
 }
