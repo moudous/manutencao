@@ -16,17 +16,17 @@ class AgendaPreventivaController extends Controller
 
     public function data(Request $request): JsonResponse
     {
-        $query=AgendaPreventiva::query()->with(['equipamento.local.unidade']);
+        $query=AgendaPreventiva::query()->with(['equipamento.local.unidade'])->withCount('lancamentos');
         if($request->boolean('include_deleted')) $query->withTrashed();
         $total=(clone $query)->count(); $search=trim((string)$request->input('search.value'));
         if($search!=='') $query->where(fn($q)=>$q->where('obs','like',"%{$search}%")->orWhereHas('equipamento',fn($a)=>$a->where('titulo','like',"%{$search}%")->orWhere('codigo','like',"%{$search}%")));
-        $filtered=(clone $query)->count(); $columns=['id','ativos_id','locais_id','ultima_agenda','periodicidade','proxima_agenda','orcamento','proximo_orcamento','ativo'];
+        $filtered=(clone $query)->count(); $columns=['id','ativos_id','locais_id','ultima_agenda','periodicidade','proxima_agenda','orcamento','proximo_orcamento','lancamentos_count','ativo'];
         $column=$columns[(int)$request->input('order.0.column',0)]??'id'; $direction=$request->input('order.0.dir')==='asc'?'asc':'desc'; $length=min(max((int)$request->input('length',10),1),100);
         $rows=$query->orderBy($column,$direction)->skip(max((int)$request->input('start',0),0))->take($length)->get()->map(fn(AgendaPreventiva $agenda)=>[
             'id'=>$agenda->id, 'equipamento'=>view('agenda._equipment_link',compact('agenda'))->render(), 'local'=>e($this->locationLabel($agenda->equipamento)),
             'ultima_agenda'=>$agenda->ultima_agenda?->format('d/m/Y')??'—', 'periodicidade'=>$agenda->periodicidade??'—', 'proxima_agenda'=>$agenda->proxima_agenda?->format('d/m/Y')??'—',
             'orcamento'=>$agenda->orcamento??'—', 'proximo_orcamento'=>$agenda->proximo_orcamento?->format('d/m/Y')??'—',
-            'status'=>view('agenda._status',compact('agenda'))->render(), 'acoes'=>view('agenda._actions',compact('agenda'))->render(),
+            'quantidade_lancamentos'=>$agenda->lancamentos_count, 'status'=>view('agenda._status',compact('agenda'))->render(), 'acoes'=>view('agenda._actions',compact('agenda'))->render(),
         ]);
         return response()->json(['draw'=>(int)$request->input('draw'),'recordsTotal'=>$total,'recordsFiltered'=>$filtered,'data'=>$rows]);
     }
