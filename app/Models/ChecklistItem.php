@@ -11,7 +11,7 @@ class ChecklistItem extends Model
     public $timestamps = false;
     protected $table = 'manut_checklist_itens';
     protected $fillable = ['checklist', 'ambiente_id', 'equipamento_id', 'ok'];
-    protected function casts(): array { return ['ok'=>'boolean']; }
+    protected function casts(): array { return ['ok'=>'integer']; }
     public function checklistRegistro(): BelongsTo { return $this->belongsTo(Checklist::class, 'checklist'); }
     public function equipamento(): BelongsTo { return $this->belongsTo(Equipamento::class, 'equipamento_id')->withTrashed(); }
     public function problema(): HasOne { return $this->hasOne(ChecklistProblema::class, 'checklistitemid'); }

@@ -13,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ChecklistController extends Controller
@@ -47,14 +48,14 @@ class ChecklistController extends Controller
     public function updateItem(Request $request, Checklist $checklist): JsonResponse
     {
         $this->ensureEditable($request, $checklist);
-        $data = $request->validate(['consultorio'=>['required','integer','min:1'], 'equipamento_id'=>['required','integer',Rule::exists('manut_equipamentos','id')->where(fn($q)=>$q->where('ativo',true)->whereNull('apagado_em'))], 'estado'=>['nullable','integer',Rule::in([0,1])], 'problema'=>['nullable','string','max:50']]);
+        $data = $request->validate(['consultorio'=>['required','integer','min:1'], 'equipamento_id'=>['required','integer',Rule::exists('manut_equipamentos','id')->where(fn($q)=>$q->where('ativo',true)->whereNull('apagado_em'))], 'estado'=>['nullable','integer',Rule::in([0,1,2])], 'problema'=>['nullable','string','max:50']]);
         abort_if($data['consultorio'] > (int) $checklist->clinica?->consultorios, 422, 'Consultório inválido para esta clínica.');
         DB::transaction(function () use ($checklist, $data): void {
             $item = ChecklistItem::query()->where(['checklist'=>$checklist->id, 'ambiente_id'=>$data['consultorio'], 'equipamento_id'=>$data['equipamento_id']])->first();
             if ($data['estado'] === null) { if ($item) { $item->problema()->delete(); $item->delete(); } return; }
             $item ??= new ChecklistItem(['checklist'=>$checklist->id, 'ambiente_id'=>$data['consultorio'], 'equipamento_id'=>$data['equipamento_id']]);
             $item->ok = (int) $data['estado']; $item->save();
-            if ((int) $data['estado'] === 0) $item->problema()->updateOrCreate([], ['ambiente_id'=>$data['consultorio'], 'problema'=>$data['problema'] ?? null]);
+            if (in_array((int) $data['estado'], [0, 2], true)) $item->problema()->updateOrCreate([], ['ambiente_id'=>$data['consultorio'], 'problema'=>$data['problema'] ?? null]);
             else $item->problema()->delete();
         });
         $checklist->load('itens.problema');
@@ -76,6 +77,63 @@ class ChecklistController extends Controller
     }
 
     public function completedIndex(): View { return view('checklist.completed-index'); }
+
+    public function consultorios(Request $request): View
+    {
+        $filtros = $request->validate([
+            'clinica' => ['nullable', 'integer', Rule::exists('manut_ambientes', 'id')],
+            'periodo' => ['nullable', Rule::in(['hoje', 'esta_semana', 'semana_passada', 'este_mes', 'personalizada'])],
+            'data' => ['nullable', 'date_format:Y-m-d'],
+        ]);
+
+        $periodo = $filtros['periodo'] ?? 'hoje';
+        if ($periodo === 'personalizada' && empty($filtros['data'])) {
+            throw ValidationException::withMessages(['data' => 'Informe a data personalizada.']);
+        }
+
+        $hoje = now()->startOfDay();
+        [$inicio, $fim] = match ($periodo) {
+            'esta_semana' => [$hoje->copy()->startOfWeek(), $hoje->copy()->endOfWeek()],
+            'semana_passada' => [$hoje->copy()->subWeek()->startOfWeek(), $hoje->copy()->subWeek()->endOfWeek()],
+            'este_mes' => [$hoje->copy()->startOfMonth(), $hoje->copy()->endOfMonth()],
+            'personalizada' => [
+                now()->createFromFormat('Y-m-d', $filtros['data'])->startOfDay(),
+                now()->createFromFormat('Y-m-d', $filtros['data'])->endOfDay(),
+            ],
+            default => [$hoje, $hoje->copy()->endOfDay()],
+        };
+
+        $checklists = Checklist::query()
+            ->with(['clinica', 'pessoaResponsavel', 'itens.equipamento', 'itens.problema'])
+            ->when(! empty($filtros['clinica']), fn ($query) => $query->where('ambiente_id', $filtros['clinica']))
+            ->whereBetween('inicio', [$inicio, $fim])
+            ->latest('inicio')
+            ->paginate(12)
+            ->withQueryString();
+
+        $checklists->getCollection()->each(function (Checklist $checklist): void {
+            $checklist->setAttribute('status_consultorios', $this->roomStatusesForOverview($checklist));
+            $checklist->setAttribute('problemas_nao_resolvidos', $checklist->itens->where('ok', 0)->count());
+            $checklist->setAttribute('problemas_resolvidos', $checklist->itens->where('ok', 2)->count());
+        });
+        $dadosModal = $checklists->getCollection()->mapWithKeys(fn (Checklist $checklist) => [(string) $checklist->id => [
+            'clinica' => $checklist->clinica?->titulo ?: 'Clínica não informada',
+            'data' => $checklist->inicio?->format('d/m/Y H:i') ?: '—',
+            'itens' => $checklist->itens->map(fn (ChecklistItem $item) => [
+                'consultorio' => (int) $item->ambiente_id,
+                'equipamento' => $item->equipamento?->titulo ?: 'Equipamento não encontrado',
+                'estado' => (int) $item->ok,
+                'problema' => $item->problema?->problema,
+            ])->values(),
+        ]]);
+
+        return view('checklist.consultorios', [
+            'checklists' => $checklists,
+            'clinicas' => Clinica::withTrashed()->whereHas('checklists')->orderBy('titulo')->get(),
+            'periodo' => $periodo,
+            'dadosModal' => $dadosModal,
+        ]);
+    }
     public function completedData(Request $request): JsonResponse
     {
         $query = Checklist::query()->whereNotNull('fim')->with(['clinica','pessoaResponsavel','itens']);
@@ -93,23 +151,42 @@ class ChecklistController extends Controller
         abort_if($checklist->fim === null, 404); $checklist->load(['clinica','pessoaResponsavel','itens.problema']);
         $statusConsultorios = [];
         for ($room=1; $room <= (int) $checklist->clinica?->consultorios; $room++) {
-            $statusConsultorios[$room] = $checklist->itens->where('ambiente_id', $room)->contains(fn ($item) => ! $item->ok) ? 'warning' : 'complete';
+            $items = $checklist->itens->where('ambiente_id', $room);
+            $statusConsultorios[$room] = $items->contains(fn ($item) => $item->ok === 0)
+                ? 'danger'
+                : ($items->contains(fn ($item) => $item->ok === 2) ? 'warning' : 'complete');
         }
         return view('checklist.completed-show',['checklist'=>$checklist,'equipamentos'=>Equipamento::withTrashed()->whereIn('id',$checklist->itens->pluck('equipamento_id'))->orderBy('titulo')->get(),'itens'=>$this->itemsPayload($checklist),'statusConsultorios'=>$statusConsultorios]);
     }
 
     private function ensureEditable(Request $request, Checklist $checklist): void { abort_unless((int)$checklist->responsavel===(int)$request->session()->get('gi_context.usuario.id'),403);abort_if($checklist->fim!==null,422,'Esta verificação já foi finalizada.');$checklist->loadMissing('clinica'); }
-    private function itemsPayload(Checklist $checklist): array { return $checklist->itens->mapWithKeys(fn($i)=>[$i->ambiente_id.'-'.$i->equipamento_id=>['id'=>$i->id,'estado'=>$i->ok?1:0,'problema'=>$i->problema?->problema]])->all(); }
+    private function itemsPayload(Checklist $checklist): array { return $checklist->itens->mapWithKeys(fn($i)=>[$i->ambiente_id.'-'.$i->equipamento_id=>['id'=>$i->id,'estado'=>(int)$i->ok,'problema'=>$i->problema?->problema]])->all(); }
     private function roomStatuses(Checklist $checklist): array
     {
         $total=Equipamento::query()->where('ativo',true)->count();$result=[];
-        for($room=1;$room<=(int)$checklist->clinica?->consultorios;$room++){ $items=$checklist->itens->where('ambiente_id',$room);$result[$room]=$items->isEmpty()?'empty':($items->count()<$total?'partial':($items->contains(fn($i)=>!$i->ok)?'warning':'complete')); }
+        for($room=1;$room<=(int)$checklist->clinica?->consultorios;$room++){ $items=$checklist->itens->where('ambiente_id',$room);$result[$room]=$items->isEmpty()?'empty':($items->contains(fn($i)=>$i->ok===0)?'danger':($items->contains(fn($i)=>$i->ok===2)?'warning':($items->count()<$total?'partial':'complete'))); }
+        return $result;
+    }
+
+    private function roomStatusesForOverview(Checklist $checklist): array
+    {
+        $result = [];
+
+        for ($room = 1; $room <= (int) $checklist->clinica?->consultorios; $room++) {
+            $items = $checklist->itens->where('ambiente_id', $room);
+            $result[$room] = $items->contains(fn ($item) => $item->ok === 0)
+                ? 'danger'
+                : ($items->contains(fn ($item) => $item->ok === 2)
+                    ? 'warning'
+                    : ($items->isEmpty() ? 'empty' : ($checklist->fim ? 'complete' : 'partial')));
+        }
+
         return $result;
     }
     private function problemRooms(Checklist $checklist): string
     {
         $rooms = $checklist->itens
-            ->where('ok', 0)
+            ->whereIn('ok', [0, 2])
             ->pluck('ambiente_id')
             ->unique()
             ->sort()

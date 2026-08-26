@@ -238,3 +238,7 @@ Route::prefix('checklist_terminados')->name('checklist_terminados.')->middleware
     Route::get('/dados', [ChecklistController::class, 'completedData'])->middleware('gi.permission:checklist.listar')->name('data');
     Route::get('/{checklist}', [ChecklistController::class, 'completedShow'])->middleware('gi.permission:checklist.visualizar')->name('show');
 });
+
+Route::get('/consultorios', [ChecklistController::class, 'consultorios'])
+    ->middleware(['gi.session', 'gi.permission:checklist.listar'])
+    ->name('consultorios.index');
