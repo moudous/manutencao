@@ -37,10 +37,7 @@ Route::get('/auth/gi', function (Request $request) {
     $context = (array) $response->json('data');
     app(GiPessoaSynchronizer::class)->sync($context);
     if (! empty($context['atualizar'])) {
-        $directory = Http::withToken($context['access_token'])->acceptJson()->timeout(10)
-            ->get(rtrim(config('gi.gi_url'), '/').'/api/integracoes/v1/usuarios');
-        abort_unless($directory->successful(), 502, 'Não foi possível atualizar os usuários pelo GI.');
-        $total = app(GiPessoaSynchronizer::class)->syncMany((array) $directory->json('data', []));
+        $total = app(GiPessoaSynchronizer::class)->syncFromGi((string) $context['access_token']);
         $context['atualizacao_usuarios'] = ['realizada' => true, 'total' => $total];
     }
     $request->session()->regenerate();
@@ -147,6 +144,7 @@ Route::prefix('unidades')->name('unidades.')->middleware('gi.session')->group(fu
 Route::prefix('pessoas')->name('pessoas.')->middleware('gi.session')->group(function (): void {
     Route::get('/', [PessoaController::class, 'index'])->middleware('gi.permission:pessoas.listar')->name('index');
     Route::get('/dados', [PessoaController::class, 'data'])->middleware('gi.permission:pessoas.listar')->name('data');
+    Route::post('/importar', [PessoaController::class, 'import'])->middleware('gi.permission:pessoas.listar')->name('import');
     Route::get('/{pessoa}', [PessoaController::class, 'show'])->middleware('gi.permission:pessoas.visualizar')->name('show');
     Route::get('/{pessoa}/edit', [PessoaController::class, 'edit'])->middleware('gi.permission:pessoas.vincular_locais')->name('edit');
     Route::put('/{pessoa}', [PessoaController::class, 'update'])->middleware('gi.permission:pessoas.vincular_locais')->name('update');

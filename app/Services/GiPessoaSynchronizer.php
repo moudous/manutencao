@@ -4,10 +4,21 @@ namespace App\Services;
 
 use App\Models\Pessoa;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use UnexpectedValueException;
 
 class GiPessoaSynchronizer
 {
+    public function syncFromGi(string $accessToken): int
+    {
+        $response = Http::withToken($accessToken)->acceptJson()->timeout(30)
+            ->get(rtrim(config('gi.gi_url'), '/').'/api/integracoes/v1/usuarios');
+
+        abort_unless($response->successful(), 502, 'Não foi possível importar as pessoas do GI.');
+
+        return $this->syncMany((array) $response->json('data', []));
+    }
+
     public function syncMany(array $usuarios): int
     {
         $total = 0;
