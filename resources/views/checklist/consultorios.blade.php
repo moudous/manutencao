@@ -7,15 +7,16 @@
     .overview-title { white-space: nowrap; font-size: 1rem; font-weight: 700; margin: 0; }
     .overview-title .badge { font-size: .78rem; vertical-align: .08rem; }
     .room-grid { display: flex; flex-wrap: wrap; gap: .75rem; }
-    .room-button { width: 52px; height: 52px; border: 0; border-radius: 50%; display: grid; place-items: center; font-weight: 700; }
+    .room-button { width: 52px; height: 52px; border: 2px solid transparent; border-radius: 50%; display: grid; place-items: center; font-weight: 700; }
     .room-button { transition: transform .2s, box-shadow .2s; }
     .room-button:hover { transform: translateY(-2px); box-shadow: 0 .3rem .7rem rgba(0, 0, 0, .15); }
     .room-empty { background: #e9ecef; color: #6c757d; }
-    .room-partial { background: var(--bs-info); color: #052c65; }
+    .room-partial { background: #e9ecef; color: var(--bs-primary); border-color: var(--bs-primary); }
     .room-complete { background: var(--bs-success); color: #fff; }
-    .room-warning { background: var(--bs-warning); color: #332701; }
+    .room-warning { background: var(--bs-info); color: #052c65; }
     .room-danger { background: var(--bs-danger); color: #fff; }
     .filters-card .btn-check + .btn { min-width: 112px; }
+    .status-partial { background: #e9ecef; color: var(--bs-primary); border: 1px solid var(--bs-primary); }
 </style>
 @endpush
 
@@ -54,9 +55,12 @@
                     <input id="data" name="data" type="date" class="form-control @error('data') is-invalid @enderror" value="{{ request('data') }}">
                     @error('data')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
-                <div class="col-12 d-flex justify-content-end gap-2">
-                    <a href="{{ route('consultorios.index') }}" class="btn btn-outline-secondary">Limpar</a>
-                    <button class="btn btn-primary"><i class="bi bi-funnel-fill me-1"></i>Filtrar</button>
+                <div class="col-12 d-flex flex-wrap gap-2 small">
+                    <span class="badge text-bg-secondary">Não iniciado</span>
+                    <span class="badge status-partial">Em andamento</span>
+                    <span class="badge text-bg-success">Tudo OK</span>
+                    <span class="badge text-bg-info">Problema resolvido</span>
+                    <span class="badge text-bg-danger">Problema não resolvido</span>
                 </div>
             </div>
         </div>
@@ -85,7 +89,7 @@
                             ({{ (int) $checklist->clinica?->consultorios }} consultórios) -
                             ({{ $duracao }}) -
                             @if($naoResolvidos > 0)<span class="badge text-bg-danger">{{ $naoResolvidos }} {{ $naoResolvidos === 1 ? 'problema não resolvido' : 'problemas não resolvidos' }}</span> -@endif
-                            @if($resolvidos > 0)<span class="badge text-bg-warning">{{ $resolvidos }} {{ $resolvidos === 1 ? 'problema resolvido' : 'problemas resolvidos' }}</span> -@endif
+                            @if($resolvidos > 0)<span class="badge text-bg-info">{{ $resolvidos }} {{ $resolvidos === 1 ? 'problema resolvido' : 'problemas resolvidos' }}</span> -@endif
                             Responsável: {{ $checklist->pessoaResponsavel?->nome ?: '—' }}
                         </h2>
                     </div>
@@ -180,9 +184,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="equipment-row py-3 border-bottom">
                 <div class="d-flex align-items-center justify-content-between gap-3">
                     <strong>${escapeHtml(item.equipamento)}</strong>
-                    <span class="badge ${item.estado === 1 ? 'text-bg-success' : (item.estado === 2 ? 'text-bg-warning' : 'text-bg-danger')}">${item.estado === 1 ? 'OK' : (item.estado === 2 ? 'Problema resolvido' : 'Problema não resolvido')}</span>
+                    <span class="badge ${item.estado === 1 ? 'text-bg-success' : (item.estado === 2 ? 'text-bg-info' : 'text-bg-danger')}">${item.estado === 1 ? 'OK' : (item.estado === 2 ? 'Problema resolvido' : 'Problema não resolvido')}</span>
                 </div>
-                ${item.problema ? `<div class="alert ${item.estado === 0 ? 'alert-danger' : 'alert-warning'} mt-2 mb-0">${escapeHtml(item.problema)}</div>` : ''}
+                ${item.problema ? `<div class="alert ${item.estado === 0 ? 'alert-danger' : 'alert-info'} mt-2 mb-0">${escapeHtml(item.problema)}</div>` : ''}
             </div>`).join('') : '<div class="text-center text-body-secondary py-4"><i class="bi bi-info-circle fs-2 d-block mb-2"></i>Nenhuma verificação registrada neste consultório.</div>';
         modal.show();
     }));
