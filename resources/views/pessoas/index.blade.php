@@ -20,7 +20,7 @@
 <div class="card content-card">
     <div class="card-header"><h5>Pessoas cadastradas</h5></div>
     <div class="card-body p-0"><div class="table-responsive"><table id="pessoasTable" class="table table-hover align-middle w-100 mb-0">
-        <thead><tr><th>ID GI</th><th>Nome</th><th>E-mail</th><th>Perfil</th><th>ID perfil</th><th>Local</th><th>Status</th><th>Última sincronização</th><th class="text-center" data-dt-order="disable">Ações</th></tr></thead><tbody></tbody>
+        <thead><tr><th>ID GI</th><th>Nome</th><th>E-mail</th><th>Perfis</th><th>Local</th><th>Status</th><th>Último login</th><th>Última sincronização</th><th class="text-center" data-dt-order="disable">Ações</th></tr></thead><tbody></tbody>
     </table></div></div>
 </div>
 @endsection
@@ -31,7 +31,7 @@
 <script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const table = new DataTable('#pessoasTable', {processing:true, serverSide:true, ajax:@json(route('pessoas.data', [], false)), order:[[0,'desc']], columns:[{data:'id'},{data:'nome'},{data:'email'},{data:'perfil'},{data:'perfil_id'},{data:'local'},{data:'status',searchable:false},{data:'atualizado_em'},{data:'acoes',orderable:false,searchable:false,className:'text-center text-nowrap'}], language:{processing:'Carregando...',emptyTable:'Nenhuma pessoa cadastrada.',info:'Exibindo _START_ a _END_ de _TOTAL_ pessoas',infoEmpty:'Nenhuma pessoa encontrada',lengthMenu:'Exibir _MENU_ registros',search:'Pesquisar:',zeroRecords:'Nenhuma pessoa encontrada.',paginate:{first:'Primeira',last:'Última',next:'Próxima',previous:'Anterior'}}});
+    const table = new DataTable('#pessoasTable', {processing:true, serverSide:true, ajax:@json(route('pessoas.data', [], false)), order:[[0,'desc']], columns:[{data:'id'},{data:'nome'},{data:'email'},{data:'perfil'},{data:'local'},{data:'status',searchable:false},{data:'ultimo_login'},{data:'atualizado_em'},{data:'acoes',orderable:false,searchable:false,className:'text-center text-nowrap'}], language:{processing:'Carregando...',emptyTable:'Nenhuma pessoa cadastrada.',info:'Exibindo _START_ a _END_ de _TOTAL_ pessoas',infoEmpty:'Nenhuma pessoa encontrada',lengthMenu:'Exibir _MENU_ registros',search:'Pesquisar:',zeroRecords:'Nenhuma pessoa encontrada.',paginate:{first:'Primeira',last:'Última',next:'Próxima',previous:'Anterior'}}});
     const button = document.getElementById('importPeople');
     const buttonLabel = button.querySelector('span');
     const feedback = document.getElementById('importFeedback');

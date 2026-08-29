@@ -12,14 +12,16 @@ class Pessoa extends Model
 
     protected $table = 'manut_pessoas';
 
-    protected $fillable = ['id', 'nome', 'email', 'perfil', 'perfil_id', 'locais_id', 'ativo'];
+    protected $fillable = ['id', 'nome', 'email', 'perfil', 'perfil_id', 'perfis', 'locais_id', 'ativo', 'ultimo_login_em'];
 
     protected function casts(): array
     {
         return [
             'perfil_id' => 'integer',
+            'perfis' => 'array',
             'locais_id' => 'integer',
             'ativo' => 'boolean',
+            'ultimo_login_em' => 'datetime',
             'criado_em' => 'datetime',
             'atualizado_em' => 'datetime',
         ];

@@ -28,12 +28,13 @@ class PessoaController extends Controller
                 $builder->where('nome', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('perfil', 'like', "%{$search}%")
+                    ->orWhere('perfis', 'like', "%{$search}%")
                     ->orWhereHas('local', fn ($local) => $local->where('titulo', 'like', "%{$search}%"));
             });
         }
 
         $filtered = (clone $query)->count();
-        $columns = ['id', 'nome', 'email', 'perfil', 'perfil_id', 'locais_id', 'ativo', 'atualizado_em'];
+        $columns = ['id', 'nome', 'email', 'perfis', 'locais_id', 'ativo', 'ultimo_login_em', 'atualizado_em'];
         $column = $columns[(int) $request->input('order.0.column', 0)] ?? 'id';
         $direction = $request->input('order.0.dir') === 'asc' ? 'asc' : 'desc';
         $length = min(max((int) $request->input('length', 10), 1), 100);
@@ -43,10 +44,21 @@ class PessoaController extends Controller
                 'id' => $pessoa->id,
                 'nome' => e($pessoa->nome),
                 'email' => e($pessoa->email),
-                'perfil' => e($pessoa->perfil ?: '—'),
-                'perfil_id' => $pessoa->perfil_id ?? '—',
+                'perfil' => collect($pessoa->perfis ?: [[
+                    'id' => $pessoa->perfil_id,
+                    'nome' => $pessoa->perfil,
+                ]])->filter(fn ($perfil): bool => filled($perfil['nome'] ?? null))
+                    ->map(function (array $perfil) use ($pessoa): string {
+                        $ultimo = (int) ($perfil['id'] ?? 0) === (int) $pessoa->perfil_id
+                            && $pessoa->ultimo_login_em !== null;
+                        $cor = $ultimo ? 'text-bg-primary' : 'text-bg-secondary';
+                        $titulo = $ultimo ? ' title="Perfil do último acesso"' : '';
+
+                        return '<span class="badge '.$cor.'"'.$titulo.'>'.e($perfil['nome']).'</span>';
+                    })->implode(', '),
                 'local' => e($pessoa->local?->titulo ?? '—'),
                 'status' => '<span class="badge '.($pessoa->ativo ? 'text-bg-success' : 'text-bg-secondary').'">'.($pessoa->ativo ? 'Ativa' : 'Inativa').'</span>',
+                'ultimo_login' => $pessoa->ultimo_login_em?->format('d/m/Y H:i') ?? 'Nunca acessou',
                 'atualizado_em' => $pessoa->atualizado_em?->format('d/m/Y H:i') ?? '—',
                 'acoes' => view('pessoas._actions', compact('pessoa'))->render(),
             ]);
