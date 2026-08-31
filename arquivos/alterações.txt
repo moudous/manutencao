@@ -1,1 +1,13 @@
-em http://localhost:8003/agenda ao clicar em falta x dia(s) tanto no prazo da manutenção quanto no prazo do orçamento abrir estas informaçãos na mesma coluna, ou seja, é como se mostrasse mais texto abaixo do link. as inofrmações abaixo vao aparecer uma embaixo da outra em tamanho menor para nao ficar longa a coluna. Nao precia coluna de periodicidade e de orçamento. Se o prazo estiver . Prazos atrasados de 1 a 3 dias ficam warning laranja e de 4 ou mais fica alert vermelho, cuidado para nao atrapalhar o contraste das informações. ordene primeiro pela data de proxima agenda maior e depois pela data de proximo orçamento maior.
+em http://localhost:8004/certificadosnovos/ na coluna PDF do datatable acrescente um botão com ícone ou texto "gerar" para gerar pdf no lugar de "-" ao clicar no lugar do botão aparece o ícone do pdf gerado que ao clicar abre em uma nova janela o novo certificado em arquivo pdf através do link publico.
+
+---------------------------------------------------------------
+mostrar régua e gride para alinhar elementos e se tiver habilitado o grid, mostrar o botão magnetizar itens com linhas próximas
+atrair elementos para as guias
+
+----------------------------------------------------
+em http://localhost:8004/templates/9/construtor acrescente o botão preview em imagem que vai abrir uma em nova página contendo o certificado em formato imagem. e em algum lugar uma instrução não imprimível que aparece onde o usuário clicar na imagem  "Pressione CTRL + P". Esta instrução depois de fechada no x ela não aparece mais quando o usuário clica. E é como uma pequena div flutuante que pode ser arrastada.  
+
+
+acrescente também em http://localhost:8004/certificadosnovos/ uma coluna no datatable chamda IMG que vai chamar ter um botão para gerar, que vai gerar a imagem do certificado o nome desta imagem será salvo na tabela lista participantes no campo codigo_img de maneira que certificado vai ter a versão em arquivo pdf e a versão em formato imagem.  E podem ser geradas individualmente igual é feito na coluna pdf. A imagem aqui aparece em uma página publica (pagina igual a detalha antes) 
+-----------------------------------------
+toda vez que for baixar o pdf do certificado sugira o nome contendo o nome do participante, se for um teste acrescente a palavra teste no nome. exemplo: "Marcelo Ribeiro da Silva - certificado 23" "Marcelo Ribeiro da Silva - certificado teste"  onde 23 é o id e na ausência do id coloque a palavra teste
